@@ -1,0 +1,1554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Federal Bureau of Digital Provisioning | Asset Request Portal</title>
+<style>
+  :root{
+    --navy:#1B3A5C;
+    --navy-dark:#0F2540;
+    --paper:#EAE6DB;
+    --paper-light:#F8F6EF;
+    --ink:#221E18;
+    --brass:#8B6F2E;
+    --red:#A31621;
+    --border:#B7AF9C;
+    --terminal-bg:#0B0F0B;
+    --terminal-green:#3ECF5E;
+  }
+
+  *{box-sizing:border-box;}
+
+  html,body{
+    margin:0;
+    padding:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Times New Roman", Georgia, serif;
+    font-size:16px;
+    line-height:1.45;
+  }
+
+  body{
+    background-image:
+      repeating-linear-gradient(0deg, rgba(0,0,0,0.015) 0px, rgba(0,0,0,0.015) 1px, transparent 1px, transparent 3px);
+    padding-bottom:52px; /* leave room for audit bar */
+  }
+
+  a{color:var(--navy);}
+
+  .skip-note{
+    position:absolute; left:-9999px;
+  }
+
+  /* ---------- Header ---------- */
+  header.portal-header{
+    background:var(--navy);
+    color:var(--paper-light);
+    border-bottom:6px double var(--brass);
+    padding:14px 16px 12px;
+  }
+  .header-top{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    max-width:760px;
+    margin:0 auto;
+  }
+  .seal{
+    flex:0 0 auto;
+    width:52px;height:52px;
+    border-radius:50%;
+    border:3px solid var(--brass);
+    background:var(--navy-dark);
+    display:flex;align-items:center;justify-content:center;
+    font-size:26px;
+  }
+  .header-titles{flex:1 1 auto; min-width:0;}
+  .agency-name{
+    font-size:12px;
+    letter-spacing:0.4px;
+    color:#D8CDA8;
+    margin:0 0 2px;
+  }
+  .portal-title{
+    font-family:Georgia, "Times New Roman", serif;
+    font-size:19px;
+    font-weight:700;
+    margin:0;
+    line-height:1.25;
+  }
+  .form-id{
+    font-family:"Courier New", monospace;
+    font-size:12px;
+    color:#D8CDA8;
+    margin-top:3px;
+  }
+  .header-controls{
+    max-width:760px;
+    margin:10px auto 0;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+    font-size:12px;
+    font-family:"Courier New", monospace;
+    color:#D8CDA8;
+  }
+  #musicToggle{
+    font-family:"Courier New", monospace;
+    font-size:12px;
+    background:var(--navy-dark);
+    color:var(--paper-light);
+    border:1px solid var(--brass);
+    padding:5px 9px;
+    cursor:pointer;
+    border-radius:2px;
+  }
+  #musicToggle:hover{background:#173049;}
+  #abandonLink{color:#E7B0B6; text-decoration:underline; font-size:12px;}
+
+  /* ---------- Ticker / notices ---------- */
+  .queue-ticker{
+    background:var(--brass);
+    color:#2B2308;
+    font-family:"Courier New", monospace;
+    font-size:12px;
+    text-align:center;
+    padding:5px 10px;
+  }
+
+  .notice-strip{
+    max-width:760px;
+    margin:12px auto 0;
+    padding:0 16px;
+  }
+  details.office-hours{
+    background:var(--paper-light);
+    border:1px solid var(--border);
+    padding:8px 12px;
+    font-size:13px;
+  }
+  details.office-hours summary{
+    cursor:pointer;
+    font-weight:bold;
+    color:var(--navy);
+  }
+  .office-hours table{border-collapse:collapse; margin-top:8px; width:100%;}
+  .office-hours td{padding:2px 6px; font-size:12.5px; border-bottom:1px dotted var(--border);}
+
+  /* ---------- Form container ---------- */
+  main.form-container{
+    max-width:760px;
+    margin:16px auto 24px;
+    background:var(--paper-light);
+    border:2px solid var(--navy);
+    box-shadow: 0 0 0 4px var(--paper-light), 0 0 0 5px var(--border);
+    padding:0 0 20px;
+  }
+
+  .progress-strip{
+    background:var(--navy-dark);
+    color:var(--paper-light);
+    padding:10px 16px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  #sectionLabel{
+    font-family:Georgia, serif;
+    font-size:13.5px;
+    letter-spacing:0.3px;
+  }
+  #timerDisplay{
+    font-family:"Courier New", monospace;
+    font-size:15px;
+    background:var(--navy);
+    padding:2px 8px;
+    border:1px solid var(--brass);
+  }
+  #timerDisplay.urgent{
+    background:var(--red);
+    animation:pulse 1s infinite;
+  }
+  @media (prefers-reduced-motion: reduce){
+    #timerDisplay.urgent{animation:none;}
+  }
+  @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:0.55;} }
+
+  .progress-track{
+    height:6px;
+    background:var(--navy);
+  }
+  .progress-fill{
+    height:100%;
+    width:0%;
+    background:var(--brass);
+    transition:width 0.4s ease;
+  }
+
+  .form-section{
+    display:none;
+    padding:20px 20px 4px;
+  }
+  .form-section.active{display:block;}
+
+  .shake{animation:shake 0.4s;}
+  @keyframes shake{
+    0%,100%{transform:translateX(0);}
+    20%{transform:translateX(-6px);}
+    40%{transform:translateX(6px);}
+    60%{transform:translateX(-4px);}
+    80%{transform:translateX(4px);}
+  }
+  @media (prefers-reduced-motion: reduce){ .shake{animation:none;} }
+
+  h2.section-heading{
+    font-family:Georgia, serif;
+    font-size:17px;
+    color:var(--navy);
+    border-bottom:2px solid var(--navy);
+    padding-bottom:6px;
+    margin:0 0 14px;
+  }
+
+  .field-row{margin-bottom:14px;}
+  .field-row label{
+    display:block;
+    font-size:13px;
+    font-weight:bold;
+    margin-bottom:4px;
+  }
+  .field-hint{
+    display:block;
+    font-size:11.5px;
+    font-weight:normal;
+    color:#5B5548;
+    margin-top:2px;
+  }
+  input[type=text], input[type=date], input[type=file], select, textarea{
+    width:100%;
+    padding:8px;
+    font-family:inherit;
+    font-size:14px;
+    border:1px solid var(--border);
+    background:#fff;
+    color:var(--ink);
+  }
+  input:focus, select:focus, textarea:focus, button:focus, canvas:focus{
+    outline:3px solid var(--brass);
+    outline-offset:1px;
+  }
+  input:disabled{background:#EEEBE2; color:#8B8676;}
+  .grid-2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+  }
+  .grid-3{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:12px;
+  }
+  @media(max-width:520px){
+    .grid-2, .grid-3{grid-template-columns:1fr;}
+  }
+  .field-error{
+    color:var(--red);
+    font-size:12px;
+    margin-top:3px;
+    min-height:14px;
+    font-weight:bold;
+  }
+  .word-count{
+    font-size:11.5px;
+    color:#5B5548;
+    text-align:right;
+    margin-top:2px;
+  }
+
+  .nav-buttons{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    margin-top:18px;
+    padding-top:14px;
+    border-top:1px dashed var(--border);
+  }
+  button.btn{
+    font-family:"Courier New", monospace;
+    font-size:13px;
+    padding:10px 16px;
+    border:1px solid var(--navy);
+    background:var(--navy);
+    color:#fff;
+    cursor:pointer;
+    letter-spacing:0.3px;
+  }
+  button.btn:hover{background:var(--navy-dark);}
+  button.btn.secondary{
+    background:var(--paper-light);
+    color:var(--navy);
+  }
+  button.btn.secondary:hover{background:#E9E4D4;}
+  button.btn:disabled{opacity:0.5; cursor:not-allowed;}
+
+  /* ---------- Signature ---------- */
+  .sig-wrap{
+    border:1px solid var(--border);
+    background:repeating-linear-gradient(
+        to bottom, transparent, transparent 27px, #D8D2C2 28px
+      ), #fff;
+    height:150px;
+    position:relative;
+    touch-action:none;
+  }
+  #sigCanvas{width:100%; height:100%; display:block;}
+  .sig-controls{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:6px;
+  }
+  .stamp{
+    display:inline-block;
+    font-family:"Courier New", monospace;
+    font-size:11px;
+    font-weight:bold;
+    letter-spacing:0.5px;
+    border:2px solid var(--red);
+    color:var(--red);
+    padding:3px 8px;
+    transform:rotate(-6deg);
+    border-radius:4px;
+  }
+  .stamp.captured{
+    color:#1D6B33;
+    border-color:#1D6B33;
+  }
+
+  .affidavit-box{
+    background:#fff;
+    border:1px solid var(--border);
+    padding:12px;
+    font-size:12.5px;
+    max-height:150px;
+    overflow-y:auto;
+    margin:14px 0;
+  }
+  .affidavit-box p{margin:0 0 8px;}
+
+  label.checkbox-row{
+    display:flex;
+    gap:8px;
+    align-items:flex-start;
+    font-size:13px;
+    margin-bottom:10px;
+  }
+  label.checkbox-row input{width:auto; margin-top:3px;}
+
+  /* ---------- Captcha ---------- */
+  .captcha-display{
+    background:repeating-linear-gradient(70deg, #E4DECB, #E4DECB 3px, #D8D2C2 3px, #D8D2C2 6px);
+    border:1px solid var(--border);
+    padding:14px 10px;
+    text-align:center;
+    font-family:Georgia, serif;
+    font-style:italic;
+    font-size:26px;
+    letter-spacing:2px;
+    color:var(--navy-dark);
+    user-select:none;
+    margin-bottom:10px;
+  }
+  .captcha-display span{display:inline-block;}
+
+  .compliance-list{
+    background:#fff;
+    border:1px solid var(--border);
+    padding:12px;
+    margin-bottom:6px;
+  }
+
+  /* ---------- Processing / Result ---------- */
+  .hidden{display:none !important;}
+  .processing-view{text-align:center; padding:24px 4px;}
+  .proc-bar-track{
+    height:16px;
+    background:#DDD6C2;
+    border:1px solid var(--border);
+    margin:16px 0 10px;
+  }
+  .proc-bar-fill{
+    height:100%;
+    width:0%;
+    background:var(--brass);
+    transition:width 0.6s ease;
+  }
+  #statusMessage{font-size:13.5px; font-family:"Courier New", monospace; color:var(--navy);}
+  .spinner{
+    width:34px;height:34px;
+    border:4px solid var(--border);
+    border-top-color:var(--navy);
+    border-radius:50%;
+    margin:0 auto 14px;
+    animation:spin 1s linear infinite;
+  }
+  @media (prefers-reduced-motion: reduce){ .spinner{animation:none;} }
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  .result-view{padding:6px 4px 4px;}
+  .denial-card{
+    border:2px solid var(--red);
+    padding:18px 16px;
+    position:relative;
+    background:#fff;
+    overflow:hidden;
+  }
+  .denial-stamp{
+    position:absolute;
+    top:10px; right:14px;
+    font-family:Georgia, serif;
+    font-weight:bold;
+    font-size:34px;
+    color:var(--red);
+    border:5px solid var(--red);
+    padding:2px 14px;
+    transform:rotate(-14deg);
+    opacity:0.85;
+    border-radius:6px;
+    letter-spacing:2px;
+  }
+  #denialCode{
+    font-family:"Courier New", monospace;
+    font-size:13px;
+    color:var(--red);
+    font-weight:bold;
+    margin:0 0 10px;
+  }
+  #denialReason{font-size:14.5px; margin:0; max-width:80%;}
+  .result-actions{
+    display:flex;
+    gap:10px;
+    margin-top:18px;
+    flex-wrap:wrap;
+  }
+  #appealHint{
+    font-size:12px;
+    color:#5B5548;
+    margin-top:14px;
+    font-style:italic;
+  }
+
+  .appeal-form{padding:4px 2px;}
+
+  /* ---------- Footer ---------- */
+  footer.portal-footer{
+    max-width:760px;
+    margin:0 auto 30px;
+    padding:0 16px;
+    font-size:12px;
+    color:#5B5548;
+  }
+  .footer-actions{
+    display:flex;
+    gap:14px;
+    align-items:center;
+    flex-wrap:wrap;
+    margin-bottom:10px;
+  }
+  #printBtn{
+    font-family:"Courier New", monospace;
+    font-size:12px;
+    padding:6px 10px;
+    border:1px solid var(--border);
+    background:var(--paper-light);
+    cursor:pointer;
+  }
+  #bypassLink{
+    font-size:10.5px;
+    color:#8B8676;
+    text-decoration:underline;
+  }
+  .disclaimer{font-size:10px; color:#8B8676; line-height:1.5;}
+
+  /* ---------- Chat widget ---------- */
+  #chatToggle{
+    position:fixed;
+    right:14px;
+    bottom:58px;
+    width:46px;height:46px;
+    border-radius:50%;
+    background:var(--navy);
+    color:#fff;
+    border:2px solid var(--brass);
+    font-size:19px;
+    cursor:pointer;
+    z-index:60;
+  }
+  #chatPanel{
+    position:fixed;
+    right:12px;
+    bottom:110px;
+    width:min(300px,86vw);
+    max-height:46vh;
+    background:var(--paper-light);
+    border:1px solid var(--navy);
+    box-shadow:0 2px 10px rgba(0,0,0,0.25);
+    z-index:59;
+    display:flex;
+    flex-direction:column;
+  }
+  #chatPanel.hidden{display:none;}
+  .chat-head{
+    background:var(--navy);
+    color:#fff;
+    font-size:12.5px;
+    padding:8px 10px;
+  }
+  #chatMessages{
+    flex:1 1 auto;
+    overflow-y:auto;
+    padding:8px 10px;
+    font-size:12.5px;
+    max-height:170px;
+  }
+  .chat-msg{margin-bottom:8px;}
+  .chat-msg.bot{color:var(--navy);}
+  .chat-msg.user{color:#4A4636; text-align:right;}
+  .chat-input-row{
+    display:flex;
+    border-top:1px solid var(--border);
+  }
+  #chatInput{
+    flex:1 1 auto;
+    border:none;
+    padding:8px;
+    font-size:12.5px;
+  }
+  #chatSend{
+    border:none;
+    background:var(--brass);
+    color:#fff;
+    padding:0 12px;
+    cursor:pointer;
+    font-size:12px;
+  }
+
+  /* ---------- Audit log bar ---------- */
+  #auditBar{
+    position:fixed;
+    left:0; right:0; bottom:0;
+    background:var(--terminal-bg);
+    color:var(--terminal-green);
+    font-family:"Courier New", monospace;
+    z-index:70;
+    border-top:2px solid #1E4A2A;
+    transition:height 0.25s ease;
+    height:38px;
+    overflow:hidden;
+  }
+  #auditBar.expanded{height:220px;}
+  #auditToggleBtn{
+    width:100%;
+    text-align:left;
+    background:none;
+    border:none;
+    color:var(--terminal-green);
+    font-family:"Courier New", monospace;
+    font-size:12px;
+    padding:9px 12px;
+    cursor:pointer;
+  }
+  #auditLogContent{
+    padding:0 12px 10px;
+    overflow-y:auto;
+    height:170px;
+    font-size:11px;
+  }
+  .log-entry{
+    white-space:pre-wrap;
+    word-break:break-word;
+    margin-bottom:2px;
+    opacity:0.92;
+  }
+
+  /* ---------- ToS Modal ---------- */
+  .modal-overlay{
+    position:fixed; inset:0;
+    background:rgba(15,20,15,0.6);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:80;
+    padding:16px;
+  }
+  .modal-overlay.hidden{display:none;}
+  .modal-card{
+    background:var(--paper-light);
+    border:2px solid var(--navy);
+    max-width:420px;
+    padding:20px;
+    max-height:80vh;
+    overflow-y:auto;
+  }
+  .modal-card h3{margin-top:0; color:var(--navy); font-size:16px;}
+  .modal-card p{font-size:13px;}
+  .modal-card button{margin-top:12px;}
+
+  @media(max-width:480px){
+    .portal-title{font-size:16.5px;}
+    .denial-stamp{font-size:24px; padding:2px 8px; right:8px; top:6px;}
+    #denialReason{max-width:100%;}
+    .form-section{padding:16px 14px 4px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="portal-header">
+  <div class="header-top">
+    <div class="seal" aria-hidden="true">🦅</div>
+    <div class="header-titles">
+      <p class="agency-name">UNITED STATES FEDERAL BUREAU OF DIGITAL PROVISIONING</p>
+      <h1 class="portal-title">Asset Request Portal</h1>
+      <p class="form-id">FORM 84-B — Application for Issuance of a Single White Pixel/JPEG Asset</p>
+    </div>
+  </div>
+  <div class="header-controls">
+    <span>Case No. <span id="caseNumber">—</span> · Filed <span id="submissionTimestamp">—</span></span>
+    <span style="display:flex; gap:10px; align-items:center;">
+      <a href="#" id="abandonLink">Abandon Application</a>
+      <button id="musicToggle" type="button">🎵 Hold Music: OFF</button>
+    </span>
+  </div>
+</header>
+
+<div class="queue-ticker" id="queueTicker" aria-live="polite">You are caller number —. Estimated wait: calculating.</div>
+
+<div class="notice-strip">
+  <details class="office-hours">
+    <summary>Office Hours &amp; Contact Information</summary>
+    <table>
+      <tr><td>Monday</td><td>Closed</td></tr>
+      <tr><td>Tuesday</td><td>Closed for Inventory of Closures</td></tr>
+      <tr><td>Wednesday</td><td>3:00 AM – 3:15 AM</td></tr>
+      <tr><td>Thursday</td><td>By appointment only (no appointments available)</td></tr>
+      <tr><td>Friday</td><td>Open, but the elevator is not</td></tr>
+      <tr><td>Weekends</td><td>Observed as a 3-day federal holiday, indefinitely</td></tr>
+    </table>
+  </details>
+</div>
+
+<main class="form-container">
+
+  <div class="progress-strip">
+    <span id="sectionLabel">SECTION 1 OF 4 — PERSONAL DEMOGRAPHICS</span>
+    <span id="timerDisplay">00:45</span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+  <!-- SECTION 1 -->
+  <section class="form-section active" id="section1">
+    <h2 class="section-heading">Section 1 — Personal Demographics &amp; Justification</h2>
+    <form id="form1" novalidate>
+      <div class="field-row">
+        <label for="fullName">Full Legal Name</label>
+        <input type="text" id="fullName" autocomplete="name">
+        <div class="field-error" id="err-fullName"></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="field-row">
+          <label for="dob">Date of Birth</label>
+          <input type="date" id="dob">
+          <div class="field-error" id="err-dob"></div>
+        </div>
+        <div class="field-row">
+          <label for="taxId">10-Digit Tax Identification Number
+            <span class="field-hint">Required even though this is for a pixel.</span>
+          </label>
+          <input type="text" id="taxId" inputmode="numeric" maxlength="12" placeholder="000-000-0000">
+          <div class="field-error" id="err-taxId"></div>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <label for="street">Street Address</label>
+        <input type="text" id="street" autocomplete="street-address">
+        <div class="field-error" id="err-street"></div>
+      </div>
+
+      <div class="grid-3">
+        <div class="field-row">
+          <label for="city">City</label>
+          <input type="text" id="city">
+          <div class="field-error" id="err-city"></div>
+        </div>
+        <div class="field-row">
+          <label for="state">State</label>
+          <input type="text" id="state">
+          <div class="field-error" id="err-state"></div>
+        </div>
+        <div class="field-row">
+          <label for="zip">ZIP Code</label>
+          <input type="text" id="zip" inputmode="numeric">
+          <div class="field-error" id="err-zip"></div>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <label for="bloodType">Blood Type
+          <span class="field-hint">Used exclusively for server load-balancing purposes.</span>
+        </label>
+        <select id="bloodType">
+          <option value="">— Select —</option>
+          <option>A+</option><option>A-</option>
+          <option>B+</option><option>B-</option>
+          <option>AB+</option><option>AB-</option>
+          <option>O+</option><option>O-</option>
+          <option>Prefer not to say (adds 6–8 weeks to processing)</option>
+        </select>
+        <div class="field-error" id="err-bloodType"></div>
+      </div>
+
+      <div class="field-row">
+        <label for="proofDoc">Proof of Residency
+          <span class="field-hint">Upload temporarily unavailable due to scheduled maintenance (est. completion: TBD).</span>
+        </label>
+        <input type="file" id="proofDoc" disabled>
+      </div>
+
+      <div class="field-row">
+        <label for="justification">Justification Essay
+          <span class="field-hint">State, in your own words, your compelling government interest in this asset. Minimum 5 words.</span>
+        </label>
+        <textarea id="justification" rows="4"></textarea>
+        <div class="word-count" id="wordCount">0 words (minimum 5 required)</div>
+        <div class="field-error" id="err-justification"></div>
+      </div>
+    </form>
+
+    <div class="nav-buttons">
+      <span></span>
+      <button class="btn" id="s1next" type="button">Proceed to Section 2</button>
+    </div>
+  </section>
+
+  <!-- SECTION 2 -->
+  <section class="form-section" id="section2">
+    <h2 class="section-heading">Section 2 — Digital Signature &amp; Sworn Affidavit</h2>
+
+    <div class="field-row">
+      <label>Sign in the box below using your mouse or finger</label>
+      <div class="sig-wrap">
+        <canvas id="sigCanvas"></canvas>
+      </div>
+      <div class="sig-controls">
+        <span class="stamp" id="sigStamp">PENDING SIGNATURE</span>
+        <button class="btn secondary" id="clearSig" type="button">Clear Signature</button>
+      </div>
+      <div class="field-error" id="err-signature"></div>
+    </div>
+
+    <div class="affidavit-box">
+      <p><strong>SWORN AFFIDAVIT — FORM 84-B, APPENDIX C</strong></p>
+      <p>I, the undersigned applicant, do solemnly attest under penalty of perjury that the asset requested herein (one white pixel, rendered in the JPEG format) shall not be used in furtherance of any subversive non-beige activities, as defined under Section 12(c) of the Neutral Tone Compliance Act.</p>
+      <p>I further attest that I have read, and do not fully understand, the Bureau's Pixel Allocation Guidelines, and that I accept this lack of understanding as a permanent condition of my application.</p>
+      <p>I acknowledge that this affidavit may be revised at any time without notice, and that my continued desire for the asset constitutes re-acceptance of all revisions.</p>
+    </div>
+
+    <label class="checkbox-row">
+      <input type="checkbox" id="affidavit">
+      <span>I acknowledge and swear to the above affidavit in its entirety.</span>
+    </label>
+    <div class="field-error" id="err-affidavit"></div>
+
+    <div class="nav-buttons">
+      <button class="btn secondary" id="s2back" type="button">Back</button>
+      <button class="btn" id="s2next" type="button">Proceed to Section 3</button>
+    </div>
+  </section>
+
+  <!-- SECTION 3 -->
+  <section class="form-section" id="section3">
+    <h2 class="section-heading">Section 3 — Compliance Checklist &amp; Verification</h2>
+
+    <div class="compliance-list">
+      <label class="checkbox-row"><input type="checkbox" class="compliance-check"><span>I confirm this request does not exceed my Quarterly Beige Allocation Threshold.</span></label>
+      <label class="checkbox-row"><input type="checkbox" class="compliance-check"><span>I acknowledge that triplicate copies are temporarily unavailable and this shall not delay processing, except that it will.</span></label>
+      <label class="checkbox-row"><input type="checkbox" class="compliance-check"><span>I have not laminated this form, nor do I intend to.</span></label>
+      <label class="checkbox-row"><input type="checkbox" class="compliance-check"><span>I confirm I am not requesting this image for use as a personality.</span></label>
+      <label class="checkbox-row"><input type="checkbox" class="compliance-check"><span>I have notified my next of kin that this application is in progress.</span></label>
+      <label class="checkbox-row"><input type="checkbox" class="compliance-check"><span>I understand that "processing" is a Bureau term of art with no defined end state.</span></label>
+    </div>
+    <div class="field-error" id="err-compliance"></div>
+
+    <div class="field-row" style="margin-top:18px;">
+      <label for="captchaInput">Verification: type the word shown below exactly as it appears</label>
+      <div class="captcha-display" id="captchaDisplay" aria-hidden="true"></div>
+      <input type="text" id="captchaInput" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <div class="field-error" id="err-captcha"></div>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn secondary" id="s3back" type="button">Back</button>
+      <button class="btn" id="s3submit" type="button">Submit Form 84-B</button>
+    </div>
+  </section>
+
+  <!-- SECTION 4 -->
+  <section class="form-section" id="section4">
+    <h2 class="section-heading">Section 4 — Processing &amp; Determination</h2>
+
+    <div class="processing-view" id="processingView">
+      <div class="spinner" aria-hidden="true"></div>
+      <div class="proc-bar-track"><div class="proc-bar-fill" id="procFill"></div></div>
+      <div id="statusMessage">Initializing...</div>
+    </div>
+
+    <div class="result-view hidden" id="resultView">
+      <div class="denial-card">
+        <div class="denial-stamp">DENIED</div>
+        <p id="denialCode">DETERMINATION CODE: —</p>
+        <p id="denialReason">—</p>
+      </div>
+      <div class="result-actions">
+        <button class="btn" id="appealBtn" type="button">File Appeal (Form 84-C)</button>
+        <button class="btn secondary" id="restartBtn" type="button">Start New Application (Form 84-B)</button>
+      </div>
+      <p id="appealHint" class="hidden">Note: Form 84-C appeals require an approved Form 84-B on file, which is the document currently under appeal. Some applicants report resolving this by consulting the site footer.</p>
+    </div>
+
+    <div class="appeal-form hidden" id="appealForm">
+      <h3 style="font-size:14.5px; color:var(--navy); margin-bottom:10px;">Form 84-C — Appeal of Determination</h3>
+      <div class="field-row">
+        <label for="appealReason">Grounds for Appeal (minimum 5 words)</label>
+        <textarea id="appealReason" rows="3"></textarea>
+        <div class="field-error" id="err-appealReason"></div>
+      </div>
+      <div class="field-row">
+        <label for="captcha2Input">Verification: type the word shown below exactly as it appears</label>
+        <div class="captcha-display" id="captcha2Display" aria-hidden="true"></div>
+        <input type="text" id="captcha2Input" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <div class="field-error" id="err-captcha2"></div>
+      </div>
+      <div class="nav-buttons">
+        <span></span>
+        <button class="btn" id="appealSubmit" type="button">Submit Appeal</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="portal-footer">
+  <div class="footer-actions">
+    <button id="printBtn" type="button">Print for Your Records</button>
+    <a href="#" id="bypassLink">Report Waste, Fraud &amp; Abuse</a>
+  </div>
+  <p class="disclaimer">This is a satirical, non-functional parody of a government portal. It is not affiliated with any real government agency, and Form 84-B is fictional. Presented in reduced type size as required by no law whatsoever.</p>
+</footer>
+
+<button id="chatToggle" type="button" aria-label="Open chat with Agent Byrne-9">💬</button>
+<div id="chatPanel" class="hidden">
+  <div class="chat-head">Agent Byrne-9 (Automated) — Live Assistance</div>
+  <div id="chatMessages">
+    <div class="chat-msg bot">Agent Byrne-9: Thank you for contacting the Bureau. I am unable to help, but I am obligated to be here.</div>
+  </div>
+  <div class="chat-input-row">
+    <input type="text" id="chatInput" placeholder="Type a message...">
+    <button id="chatSend" type="button">Send</button>
+  </div>
+</div>
+
+<div id="tosModal" class="modal-overlay hidden">
+  <div class="modal-card">
+    <h3>Notice: Terms of Service Updated</h3>
+    <p>The Bureau's Terms of Service have been updated while you were filling out this form. Continued use of this portal constitutes acceptance of terms you have not seen.</p>
+    <p>No summary of changes is available at this time.</p>
+    <button class="btn" id="tosAccept" type="button">I Acknowledge</button>
+  </div>
+</div>
+
+<div id="auditBar">
+  <button id="auditToggleBtn" type="button">▲ SYSTEM AUDIT LOG (tap to expand)</button>
+  <div id="auditLogContent"></div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+(function(){
+  "use strict";
+
+  var state = {
+    section: 1,
+    timeLeft: 45,
+    timerId: null,
+    appealCount: 0,
+    hasSignature: false,
+    tosShown: false,
+    musicOn: false
+  };
+
+  function pad(n){ return n.toString().padStart(2,'0'); }
+
+  function genCaseNumber(){
+    return 'FBDP-' + new Date().getFullYear() + '-' + Math.floor(100000 + Math.random()*900000);
+  }
+
+  function log(msg){
+    var time = new Date().toLocaleTimeString('en-US',{hour12:false});
+    var entry = document.createElement('div');
+    entry.className = 'log-entry';
+    entry.textContent = '[' + time + '] ' + msg;
+    var container = document.getElementById('auditLogContent');
+    container.appendChild(entry);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  /* ---------- Timer ---------- */
+  function startTimer(){
+    clearInterval(state.timerId);
+    state.timeLeft = 45;
+    updateTimerDisplay();
+    state.timerId = setInterval(function(){
+      state.timeLeft--;
+      updateTimerDisplay();
+      if(state.timeLeft <= 0){
+        clearInterval(state.timerId);
+        log('SESSION EXPIRED — Form 84-B auto-reset per Directive 9(a).');
+        alert('Your session has expired due to inactivity. All entered data has been discarded, per Directive 9(a). Please begin again.');
+        resetForm();
+      }
+    }, 1000);
+  }
+
+  function stopTimer(){
+    clearInterval(state.timerId);
+    document.getElementById('timerDisplay').textContent = '—:—';
+    document.getElementById('timerDisplay').classList.remove('urgent');
+  }
+
+  function updateTimerDisplay(){
+    var el = document.getElementById('timerDisplay');
+    el.textContent = '00:' + pad(state.timeLeft);
+    el.classList.toggle('urgent', state.timeLeft <= 10);
+  }
+
+  /* ---------- Section navigation ---------- */
+  var sectionTitles = {
+    1:'PERSONAL DEMOGRAPHICS',
+    2:'SIGNATURE & AFFIDAVIT',
+    3:'COMPLIANCE & VERIFICATION',
+    4:'PROCESSING & DETERMINATION'
+  };
+
+  function showSection(n, skipTimer){
+    document.querySelectorAll('.form-section').forEach(function(s){ s.classList.remove('active'); });
+    document.getElementById('section' + n).classList.add('active');
+    state.section = n;
+    document.getElementById('sectionLabel').textContent = 'SECTION ' + n + ' OF 4 — ' + sectionTitles[n];
+    document.getElementById('progressFill').style.width = ((n - 1) / 3 * 100) + '%';
+    if(skipTimer){ stopTimer(); } else { startTimer(); }
+    log('Navigated to Section ' + n + '.');
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  function clearErrors(scopeEl){
+    scopeEl.querySelectorAll('.field-error').forEach(function(e){ e.textContent=''; });
+  }
+
+  function resetForm(){
+    document.getElementById('form1').reset();
+    clearErrors(document.getElementById('section1'));
+    document.getElementById('wordCount').textContent = '0 words (minimum 5 required)';
+    document.getElementById('affidavit').checked = false;
+    clearErrors(document.getElementById('section2'));
+    document.querySelectorAll('.compliance-check').forEach(function(c){ c.checked = false; });
+    document.getElementById('captchaInput').value = '';
+    clearErrors(document.getElementById('section3'));
+    clearSignature();
+    document.getElementById('processingView').classList.remove('hidden');
+    document.getElementById('resultView').classList.add('hidden');
+    document.getElementById('appealForm').classList.add('hidden');
+    document.getElementById('appealHint').classList.add('hidden');
+    state.appealCount = 0;
+    document.getElementById('caseNumber').textContent = genCaseNumber();
+    document.getElementById('submissionTimestamp').textContent = new Date().toLocaleString();
+    showSection(1);
+  }
+
+  /* ---------- Section 1 ---------- */
+  document.getElementById('taxId').addEventListener('input', function(e){
+    var digits = e.target.value.replace(/\D/g,'').slice(0,10);
+    var formatted = digits;
+    if(digits.length > 3 && digits.length <= 6){
+      formatted = digits.slice(0,3) + '-' + digits.slice(3);
+    } else if(digits.length > 6){
+      formatted = digits.slice(0,3) + '-' + digits.slice(3,6) + '-' + digits.slice(6);
+    }
+    e.target.value = formatted;
+  });
+
+  document.getElementById('justification').addEventListener('input', function(e){
+    var words = e.target.value.trim().split(/\s+/).filter(Boolean).length;
+    document.getElementById('wordCount').textContent = words + ' word' + (words !== 1 ? 's' : '') + ' (minimum 5 required)';
+  });
+
+  document.getElementById('s1next').addEventListener('click', function(){
+    var section = document.getElementById('section1');
+    clearErrors(section);
+    var valid = true;
+    ['fullName','street','city','state','zip'].forEach(function(id){
+      var el = document.getElementById(id);
+      if(!el.value.trim()){
+        document.getElementById('err-' + id).textContent = 'This field is required.';
+        valid = false;
+        log('Validation error: ' + id + ' is empty.');
+      }
+    });
+    if(!document.getElementById('dob').value){
+      document.getElementById('err-dob').textContent = 'Date of birth is required.';
+      valid = false;
+      log('Validation error: date of birth is empty.');
+    }
+    var taxId = document.getElementById('taxId').value.replace(/\D/g,'');
+    if(taxId.length !== 10){
+      document.getElementById('err-taxId').textContent = 'Tax ID must contain exactly 10 digits.';
+      valid = false;
+      log('Validation error: Tax ID invalid (' + taxId.length + ' digits).');
+    }
+    if(!document.getElementById('bloodType').value){
+      document.getElementById('err-bloodType').textContent = 'Blood type is required for load-balancing purposes.';
+      valid = false;
+      log('Validation error: blood type not selected.');
+    }
+    var words = document.getElementById('justification').value.trim().split(/\s+/).filter(Boolean);
+    if(words.length < 5){
+      document.getElementById('err-justification').textContent = 'Justification must contain at least 5 words.';
+      valid = false;
+      log('Validation error: justification essay too short (' + words.length + ' words).');
+    }
+    if(valid){
+      log('Section 1 validated successfully.');
+      showSection(2);
+      maybeShowTos();
+    } else {
+      section.classList.add('shake');
+      setTimeout(function(){ section.classList.remove('shake'); }, 400);
+    }
+  });
+
+  /* ---------- Section 2: Signature ---------- */
+  var canvas = document.getElementById('sigCanvas');
+  var ctx = canvas.getContext('2d');
+
+  function resizeCanvas(){
+    var rect = canvas.getBoundingClientRect();
+    var ratio = window.devicePixelRatio || 1;
+    canvas.width = rect.width * ratio;
+    canvas.height = rect.height * ratio;
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.scale(ratio, ratio);
+    ctx.strokeStyle = '#1B3A5C';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+  }
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+
+  var drawing = false;
+  function getPos(e){
+    var rect = canvas.getBoundingClientRect();
+    var point = e.touches && e.touches.length ? e.touches[0] : e;
+    return { x: point.clientX - rect.left, y: point.clientY - rect.top };
+  }
+  function startDraw(e){
+    drawing = true;
+    var p = getPos(e);
+    ctx.beginPath();
+    ctx.moveTo(p.x, p.y);
+    e.preventDefault();
+  }
+  function moveDraw(e){
+    if(!drawing) return;
+    var p = getPos(e);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+    if(!state.hasSignature){
+      state.hasSignature = true;
+      var stampEl = document.getElementById('sigStamp');
+      stampEl.textContent = 'SIGNATURE CAPTURED';
+      stampEl.classList.add('captured');
+    }
+    e.preventDefault();
+  }
+  function endDraw(){ drawing = false; }
+
+  canvas.addEventListener('mousedown', startDraw);
+  canvas.addEventListener('mousemove', moveDraw);
+  window.addEventListener('mouseup', endDraw);
+  canvas.addEventListener('touchstart', startDraw, {passive:false});
+  canvas.addEventListener('touchmove', moveDraw, {passive:false});
+  canvas.addEventListener('touchend', endDraw);
+
+  function clearSignature(){
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    state.hasSignature = false;
+    var stampEl = document.getElementById('sigStamp');
+    stampEl.textContent = 'PENDING SIGNATURE';
+    stampEl.classList.remove('captured');
+  }
+  document.getElementById('clearSig').addEventListener('click', function(){
+    clearSignature();
+    log('Signature cleared by applicant.');
+  });
+
+  document.getElementById('s2next').addEventListener('click', function(){
+    var section = document.getElementById('section2');
+    var valid = true;
+    if(!state.hasSignature){
+      document.getElementById('err-signature').textContent = 'A signature is required. Typed text does not qualify as a signature.';
+      valid = false;
+      log('Validation error: signature missing.');
+    } else {
+      document.getElementById('err-signature').textContent = '';
+    }
+    if(!document.getElementById('affidavit').checked){
+      document.getElementById('err-affidavit').textContent = 'You must acknowledge the affidavit to proceed.';
+      valid = false;
+      log('Validation error: affidavit not acknowledged.');
+    } else {
+      document.getElementById('err-affidavit').textContent = '';
+    }
+    if(valid){
+      log('Section 2 validated successfully.');
+      showSection(3);
+      renderCaptcha('captchaDisplay');
+    } else {
+      section.classList.add('shake');
+      setTimeout(function(){ section.classList.remove('shake'); }, 400);
+    }
+  });
+  document.getElementById('s2back').addEventListener('click', function(){ showSection(1); });
+
+  /* ---------- Section 3: Compliance + Captcha ---------- */
+  function renderCaptcha(containerId){
+    var word = 'Bureaucracy';
+    var container = document.getElementById(containerId);
+    container.innerHTML = '';
+    for(var i=0;i<word.length;i++){
+      var span = document.createElement('span');
+      span.textContent = word[i];
+      var rot = (Math.random()*30 - 15).toFixed(1);
+      var ty = (Math.random()*10 - 5).toFixed(1);
+      span.style.transform = 'rotate(' + rot + 'deg) translateY(' + ty + 'px)';
+      container.appendChild(span);
+    }
+  }
+
+  document.getElementById('s3submit').addEventListener('click', function(){
+    var section = document.getElementById('section3');
+    var valid = true;
+    var checks = document.querySelectorAll('.compliance-check');
+    var unchecked = 0;
+    checks.forEach(function(c){ if(!c.checked) unchecked++; });
+    if(unchecked > 0){
+      document.getElementById('err-compliance').textContent = unchecked + ' compliance item(s) remain unacknowledged.';
+      valid = false;
+      log('Validation error: ' + unchecked + ' compliance checkbox(es) unchecked.');
+    } else {
+      document.getElementById('err-compliance').textContent = '';
+    }
+    var captchaVal = document.getElementById('captchaInput').value.trim().toLowerCase();
+    if(captchaVal !== 'bureaucracy'){
+      document.getElementById('err-captcha').textContent = 'Incorrect. Please re-type the word exactly as shown.';
+      valid = false;
+      log('Validation error: CAPTCHA response "' + (captchaVal || '(blank)') + '" did not match.');
+      renderCaptcha('captchaDisplay');
+      document.getElementById('captchaInput').value = '';
+    } else {
+      document.getElementById('err-captcha').textContent = '';
+    }
+    if(valid){
+      log('Section 3 validated successfully. Submitting Form 84-B for processing.');
+      showSection(4, true);
+      startProcessing();
+    } else {
+      section.classList.add('shake');
+      setTimeout(function(){ section.classList.remove('shake'); }, 400);
+    }
+  });
+  document.getElementById('s3back').addEventListener('click', function(){ showSection(2); });
+
+  /* ---------- Section 4: Processing + Determination ---------- */
+  var statusMessages = [
+    'Verifying signature curvature ratio...',
+    'Cross-referencing lunar calendar...',
+    'Contacting Regional Sub-Office 12...',
+    'Escalating to Deputy Undersecretary...',
+    'Consulting the Federal Pixel Registry...',
+    'Balancing server load by blood type...',
+    'Reticulating splines (mandatory, unrelated)...',
+    'Notarizing the notarization of the notarization...',
+    'Checking Beige Compliance Index...',
+    'Awaiting quorum of three (3) available reviewers...'
+  ];
+
+  var rejectionReasons = [
+    'Signature curvature ratio exceeds acceptable tolerance (measured 14.7°, maximum allowed 12°).',
+    'Application filed during an unapproved lunar cycle. Waning Gibbous submissions are processed on alternating Thursdays only.',
+    'Justification essay contains a word beginning with a letter from the Restricted Alphabet Subset.',
+    'Blood type selection conflicts with Regional Server Load Balancing Directive 7.',
+    'Tax ID checksum failed Federal Digit Harmony Verification.',
+    'Requested asset dimensions (1 by 1 pixel) exceed the Minimalism Allowance for this fiscal quarter.',
+    'Affidavit witnessed by an unlicensed notary hologram.',
+    'Application submitted 0.4 seconds before the mandatory cooling-off period elapsed.',
+    'Applicant\u2019s mailing address is currently under a 90-day moratorium.',
+    'CAPTCHA response was technically correct but insufficiently sincere.',
+    'Case file misplaced by Sub-Basement Records. See Form 84-B, Appendix Q, to request a re-misplacement.',
+    'Duplicate request detected for a white pixel filed by a parallel-universe applicant sharing your case number.',
+    'Processing server experienced a queue priority inversion while balancing load by blood type.',
+    'Applicant\u2019s justification essay was persuasive, which is not currently a valid approval criterion.',
+    'Form was completed correctly, which the reviewing officer found suspicious.'
+  ];
+
+  var appealDenials = [
+    'Appeal denied: appeals must be filed using Form 84-C, which itself requires an approved Form 84-B on file.',
+    'Appeal denied: the Deputy Undersecretary is currently at lunch. Estimated return: end of fiscal year.',
+    'Appeal denied: appeal justification reused a word from the original justification essay.',
+    'Appeal denied: the Regional Appeals Office has been relocated to a facility with no known address.',
+    'Appeal denied: this appeal has been referred to the Committee for the Review of Appeals of Appeals.'
+  ];
+
+  function randCode(){
+    var letters = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+    return '84B-' + Math.floor(1000 + Math.random()*9000) + '-' + letters[Math.floor(Math.random()*letters.length)];
+  }
+
+  function startProcessing(){
+    document.getElementById('processingView').classList.remove('hidden');
+    document.getElementById('resultView').classList.add('hidden');
+    document.getElementById('appealForm').classList.add('hidden');
+    var fill = document.getElementById('procFill');
+    var statusEl = document.getElementById('statusMessage');
+    fill.style.width = '0%';
+    var progress = 0;
+    var msgIndex = 0;
+    statusEl.textContent = statusMessages[0];
+    log('Processing initiated.');
+    var interval = setInterval(function(){
+      progress += Math.random()*14 + 6;
+      if(progress > 96) progress = 96;
+      if(Math.random() < 0.18 && progress > 40){
+        progress -= 9;
+        log('Progress recalculated (regression detected).');
+      }
+      fill.style.width = progress + '%';
+      msgIndex = (msgIndex + 1) % statusMessages.length;
+      statusEl.textContent = statusMessages[msgIndex];
+      log('System: ' + statusMessages[msgIndex]);
+    }, 700);
+    setTimeout(function(){
+      clearInterval(interval);
+      fill.style.width = '100%';
+      statusEl.textContent = 'Finalizing determination...';
+      setTimeout(showRejection, 900);
+    }, 6500);
+  }
+
+  function showRejection(){
+    document.getElementById('processingView').classList.add('hidden');
+    document.getElementById('resultView').classList.remove('hidden');
+    var reason = rejectionReasons[Math.floor(Math.random()*rejectionReasons.length)];
+    var code = randCode();
+    document.getElementById('denialCode').textContent = 'DETERMINATION CODE: ' + code;
+    document.getElementById('denialReason').textContent = reason;
+    log('APPLICATION DENIED — Code ' + code + '. Reason: ' + reason);
+    document.getElementById('appealBtn').textContent = 'File Appeal (Form 84-C)';
+  }
+
+  document.getElementById('appealBtn').addEventListener('click', function(){
+    state.appealCount++;
+    log('Appeal attempt ' + state.appealCount + ' initiated.');
+    document.getElementById('resultView').classList.add('hidden');
+    document.getElementById('appealForm').classList.remove('hidden');
+    document.getElementById('appealReason').value = '';
+    document.getElementById('captcha2Input').value = '';
+    clearErrors(document.getElementById('appealForm'));
+    renderCaptcha('captcha2Display');
+    if(state.appealCount >= 3){
+      document.getElementById('appealHint').classList.remove('hidden');
+    }
+  });
+
+  document.getElementById('appealSubmit').addEventListener('click', function(){
+    var valid = true;
+    var reasonWords = document.getElementById('appealReason').value.trim().split(/\s+/).filter(Boolean);
+    if(reasonWords.length < 5){
+      document.getElementById('err-appealReason').textContent = 'Appeal justification must contain at least 5 words.';
+      valid = false;
+    } else {
+      document.getElementById('err-appealReason').textContent = '';
+    }
+    var captchaVal = document.getElementById('captcha2Input').value.trim().toLowerCase();
+    if(captchaVal !== 'bureaucracy'){
+      document.getElementById('err-captcha2').textContent = 'Incorrect. Please try again.';
+      valid = false;
+      renderCaptcha('captcha2Display');
+      document.getElementById('captcha2Input').value = '';
+    } else {
+      document.getElementById('err-captcha2').textContent = '';
+    }
+    if(!valid) return;
+    log('Appeal ' + state.appealCount + ' submitted for review.');
+    document.getElementById('appealForm').classList.add('hidden');
+    document.getElementById('processingView').classList.remove('hidden');
+    startAppealProcessing();
+  });
+
+  function startAppealProcessing(){
+    var fill = document.getElementById('procFill');
+    var statusEl = document.getElementById('statusMessage');
+    fill.style.width = '0%';
+    var progress = 0;
+    var i = 0;
+    statusEl.textContent = 'Routing appeal to Regional Appeals Office...';
+    log('Appeal processing initiated.');
+    var interval = setInterval(function(){
+      progress += Math.random()*20 + 10;
+      if(progress > 96) progress = 96;
+      fill.style.width = progress + '%';
+      i = (i + 1) % statusMessages.length;
+      statusEl.textContent = statusMessages[i];
+    }, 600);
+    setTimeout(function(){
+      clearInterval(interval);
+      fill.style.width = '100%';
+      setTimeout(function(){
+        document.getElementById('processingView').classList.add('hidden');
+        document.getElementById('resultView').classList.remove('hidden');
+        var reason = appealDenials[Math.floor(Math.random()*appealDenials.length)];
+        var code = randCode();
+        document.getElementById('denialCode').textContent = 'APPEAL DETERMINATION CODE: ' + code;
+        document.getElementById('denialReason').textContent = reason;
+        log('APPEAL DENIED — Code ' + code + '. Reason: ' + reason);
+        document.getElementById('appealBtn').textContent = 'File Further Appeal (Form 84-C, Attempt ' + (state.appealCount + 1) + ')';
+      }, 700);
+    }, 3800);
+  }
+
+  document.getElementById('restartBtn').addEventListener('click', function(){
+    log('Applicant started a new application.');
+    resetForm();
+  });
+
+  /* ---------- Abandon application ---------- */
+  document.getElementById('abandonLink').addEventListener('click', function(e){
+    e.preventDefault();
+    if(confirm('Abandon this application? All progress will be lost and cannot be recovered, per Directive 9(a).')){
+      log('Applicant voluntarily abandoned application.');
+      resetForm();
+    }
+  });
+
+  /* ---------- Terms of Service modal ---------- */
+  function maybeShowTos(){
+    if(state.tosShown) return;
+    state.tosShown = true;
+    setTimeout(function(){
+      document.getElementById('tosModal').classList.remove('hidden');
+      log('Terms of Service update presented to applicant.');
+    }, 4000);
+  }
+  document.getElementById('tosAccept').addEventListener('click', function(){
+    document.getElementById('tosModal').classList.add('hidden');
+    log('Applicant acknowledged updated Terms of Service.');
+  });
+
+  /* ---------- Whistleblower bypass ---------- */
+  document.getElementById('bypassLink').addEventListener('click', function(e){
+    e.preventDefault();
+    var c = document.createElement('canvas');
+    c.width = 1; c.height = 1;
+    var cx = c.getContext('2d');
+    cx.fillStyle = '#FFFFFF';
+    cx.fillRect(0, 0, 1, 1);
+    var url = c.toDataURL('image/jpeg', 1.0);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'federal-asset-84B.jpg';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    log('EMERGENCY BYPASS ACTIVATED — asset served without authorization via whistleblower channel.');
+    alert('Congratulations. You have discovered the only functional government service in this building. Your white pixel has been downloaded. This incident has been logged and immediately forgotten.');
+  });
+
+  /* ---------- Print ---------- */
+  document.getElementById('printBtn').addEventListener('click', function(){
+    log('Applicant printed page for personal records.');
+    window.print();
+  });
+
+  /* ---------- Chat widget ---------- */
+  var botReplies = [
+    'Please refer to Section 12(c)-iv of the Compliance Handbook.',
+    'That inquiry has been forwarded to a queue with no known exit.',
+    'I am only able to confirm that your case number exists.',
+    'Have you tried resubmitting Form 84-B in triplicate?',
+    'This chat is monitored for quality assurance, and also for no reason.',
+    'Unfortunately, I am a bot and cannot help with that.',
+    'Your patience has been noted in a file that no one will read.',
+    'I have escalated your message to myself.'
+  ];
+
+  document.getElementById('chatToggle').addEventListener('click', function(){
+    document.getElementById('chatPanel').classList.toggle('hidden');
+  });
+
+  function sendChat(){
+    var input = document.getElementById('chatInput');
+    var text = input.value.trim();
+    if(!text) return;
+    addChatMessage(text, 'user');
+    input.value = '';
+    setTimeout(function(){
+      var reply = botReplies[Math.floor(Math.random()*botReplies.length)];
+      addChatMessage(reply, 'bot');
+    }, 600);
+  }
+  document.getElementById('chatSend').addEventListener('click', sendChat);
+  document.getElementById('chatInput').addEventListener('keydown', function(e){
+    if(e.key === 'Enter') sendChat();
+  });
+  function addChatMessage(text, who){
+    var msgs = document.getElementById('chatMessages');
+    var div = document.createElement('div');
+    div.className = 'chat-msg ' + who;
+    div.textContent = (who === 'bot' ? 'Agent Byrne-9: ' : 'You: ') + text;
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  /* ---------- Queue ticker ---------- */
+  function updateQueue(){
+    var num = Math.floor(Math.random()*90) + 10;
+    var waits = ['3\u20135 business lifetimes','one fiscal quarter','an indeterminate duration','until further notice','2 to 400 business days'];
+    var wait = waits[Math.floor(Math.random()*waits.length)];
+    document.getElementById('queueTicker').textContent = 'You are caller number ' + num + '. Estimated wait: ' + wait + '.';
+  }
+  updateQueue();
+  setInterval(updateQueue, 8000);
+
+  /* ---------- Audit log toggle ---------- */
+  document.getElementById('auditToggleBtn').addEventListener('click', function(){
+    var bar = document.getElementById('auditBar');
+    bar.classList.toggle('expanded');
+    this.textContent = bar.classList.contains('expanded') ? '\u25BC SYSTEM AUDIT LOG (tap to collapse)' : '\u25B2 SYSTEM AUDIT LOG (tap to expand)';
+  });
+
+  /* ---------- Elevator hold music (Web Audio API) ---------- */
+  var audioCtx = null;
+  var musicInterval = null;
+  var musicStep = 0;
+
+  function initAudio(){
+    if(!audioCtx){
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+  }
+
+  function playNote(freq, time, dur, type, vol){
+    var osc = audioCtx.createOscillator();
+    var gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0, time);
+    gain.gain.linearRampToValueAtTime(vol, time + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + dur);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(time);
+    osc.stop(time + dur + 0.05);
+  }
+
+  function playPerc(time, vol){
+    var bufferSize = Math.floor(audioCtx.sampleRate * 0.05);
+    var buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    var data = buffer.getChannelData(0);
+    for(var i=0;i<bufferSize;i++){ data[i] = (Math.random()*2 - 1) * (1 - i/bufferSize); }
+    var noise = audioCtx.createBufferSource();
+    noise.buffer = buffer;
+    var filter = audioCtx.createBiquadFilter();
+    filter.type = 'highpass';
+    filter.frequency.value = 4000;
+    var gain = audioCtx.createGain();
+    gain.gain.setValueAtTime(vol, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.05);
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(audioCtx.destination);
+    noise.start(time);
+  }
+
+  var chordProgression = [
+    [261.63, 329.63, 392.00, 493.88],
+    [220.00, 277.18, 329.63, 392.00],
+    [293.66, 349.23, 440.00, 523.25],
+    [196.00, 246.94, 293.66, 349.23]
+  ];
+
+  function scheduleMusicStep(){
+    var stepTime = audioCtx.currentTime + 0.05;
+    var chordIdx = Math.floor(musicStep / 4) % chordProgression.length;
+    var chord = chordProgression[chordIdx];
+    var noteInChord = chord[musicStep % chord.length];
+    playNote(noteInChord, stepTime, 0.35, 'triangle', 0.09);
+    if(musicStep % 2 === 1){
+      playPerc(stepTime, 0.05);
+    }
+    if(musicStep % 8 === 0){
+      playNote(chord[0] / 2, stepTime, 0.4, 'sine', 0.1);
+    }
+    musicStep++;
+  }
+
+  document.getElementById('musicToggle').addEventListener('click', function(){
+    initAudio();
+    if(audioCtx && audioCtx.state === 'suspended'){ audioCtx.resume(); }
+    state.musicOn = !state.musicOn;
+    var btn = document.getElementById('musicToggle');
+    if(state.musicOn){
+      btn.textContent = '🎵 Hold Music: ON';
+      if(audioCtx){
+        musicInterval = setInterval(scheduleMusicStep, 280);
+        log('Elevator hold music activated.');
+      } else {
+        log('Audio context failed to initialize.');
+        state.musicOn = false;
+        btn.textContent = '🎵 Hold Music: OFF (unavailable)';
+      }
+    } else {
+      btn.textContent = '🎵 Hold Music: OFF';
+      clearInterval(musicInterval);
+      log('Elevator hold music deactivated.');
+    }
+  });
+
+  /* ---------- Init ---------- */
+  document.getElementById('caseNumber').textContent = genCaseNumber();
+  document.getElementById('submissionTimestamp').textContent = new Date().toLocaleString();
+  showSection(1);
+  log('Form 84-B session initialized.');
+
+})();
+</script>
+</body>
+</html>
