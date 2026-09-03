@@ -17,6 +17,8 @@ layout: null
     --ink:#221E18;
     --brass:#8B6F2E;
     --red:#A31621;
+    --gold:#C9A227;
+    --green:#1D6B33;
     --border:#B7AF9C;
     --terminal-bg:#0B0F0B;
     --terminal-green:#3ECF5E;
@@ -37,14 +39,10 @@ layout: null
   body{
     background-image:
       repeating-linear-gradient(0deg, rgba(0,0,0,0.015) 0px, rgba(0,0,0,0.015) 1px, transparent 1px, transparent 3px);
-    padding-bottom:52px; /* leave room for audit bar */
+    padding-bottom:52px;
   }
 
   a{color:var(--navy);}
-
-  .skip-note{
-    position:absolute; left:-9999px;
-  }
 
   /* ---------- Header ---------- */
   header.portal-header{
@@ -68,6 +66,8 @@ layout: null
     background:var(--navy-dark);
     display:flex;align-items:center;justify-content:center;
     font-size:26px;
+    cursor:pointer;
+    user-select:none;
   }
   .header-titles{flex:1 1 auto; min-width:0;}
   .agency-name{
@@ -113,6 +113,14 @@ layout: null
   }
   #musicToggle:hover{background:#173049;}
   #abandonLink{color:#E7B0B6; text-decoration:underline; font-size:12px;}
+  .secret-dot{
+    display:inline-block;
+    width:6px;height:6px;
+    background:var(--navy-dark);
+    opacity:0.35;
+    cursor:pointer;
+    margin-left:2px;
+  }
 
   /* ---------- Ticker / notices ---------- */
   .queue-ticker{
@@ -122,6 +130,14 @@ layout: null
     font-size:12px;
     text-align:center;
     padding:5px 10px;
+  }
+  .grind-ticker{
+    background:var(--navy-dark);
+    color:#D8CDA8;
+    font-family:"Courier New", monospace;
+    font-size:11px;
+    text-align:center;
+    padding:4px 10px;
   }
 
   .notice-strip{
@@ -165,7 +181,7 @@ layout: null
   }
   #sectionLabel{
     font-family:Georgia, serif;
-    font-size:13.5px;
+    font-size:13px;
     letter-spacing:0.3px;
   }
   #timerDisplay{
@@ -213,11 +229,17 @@ layout: null
 
   h2.section-heading{
     font-family:Georgia, serif;
-    font-size:17px;
+    font-size:16.5px;
     color:var(--navy);
     border-bottom:2px solid var(--navy);
     padding-bottom:6px;
     margin:0 0 14px;
+  }
+  .section-sub{
+    font-size:12px;
+    color:#6B6554;
+    margin:-10px 0 14px;
+    font-style:italic;
   }
 
   .field-row{margin-bottom:14px;}
@@ -234,7 +256,7 @@ layout: null
     color:#5B5548;
     margin-top:2px;
   }
-  input[type=text], input[type=date], input[type=file], select, textarea{
+  input[type=text], input[type=date], input[type=number], input[type=file], select, textarea{
     width:100%;
     padding:8px;
     font-family:inherit;
@@ -299,6 +321,11 @@ layout: null
     color:var(--navy);
   }
   button.btn.secondary:hover{background:#E9E4D4;}
+  button.btn.gold{
+    background:var(--gold);
+    border-color:var(--gold);
+    color:#2B2308;
+  }
   button.btn:disabled{opacity:0.5; cursor:not-allowed;}
 
   /* ---------- Signature ---------- */
@@ -311,7 +338,8 @@ layout: null
     position:relative;
     touch-action:none;
   }
-  #sigCanvas{width:100%; height:100%; display:block;}
+  .sig-wrap.small{height:100px;}
+  canvas.sig-canvas{width:100%; height:100%; display:block;}
   .sig-controls{
     display:flex;
     justify-content:space-between;
@@ -331,8 +359,8 @@ layout: null
     border-radius:4px;
   }
   .stamp.captured{
-    color:#1D6B33;
-    border-color:#1D6B33;
+    color:var(--green);
+    border-color:var(--green);
   }
 
   .affidavit-box{
@@ -355,7 +383,7 @@ layout: null
   }
   label.checkbox-row input{width:auto; margin-top:3px;}
 
-  /* ---------- Captcha ---------- */
+  /* ---------- Captcha shared ---------- */
   .captcha-display{
     background:repeating-linear-gradient(70deg, #E4DECB, #E4DECB 3px, #D8D2C2 3px, #D8D2C2 6px);
     border:1px solid var(--border);
@@ -370,6 +398,100 @@ layout: null
     margin-bottom:10px;
   }
   .captcha-display span{display:inline-block;}
+  .captcha-display.small{font-size:20px;}
+  .captcha-math{
+    background:#fff;
+    border:1px solid var(--border);
+    padding:16px 10px;
+    text-align:center;
+    font-family:"Courier New", monospace;
+    font-size:24px;
+    color:var(--navy-dark);
+    margin-bottom:10px;
+  }
+  .captcha-phrase{
+    background:#fff;
+    border:1px solid var(--border);
+    padding:12px;
+    font-family:Georgia, serif;
+    font-style:italic;
+    font-size:14px;
+    color:var(--navy-dark);
+    margin-bottom:10px;
+    line-height:1.5;
+  }
+
+  .grid-captcha{
+    display:grid;
+    grid-template-columns:repeat(5, 1fr);
+    gap:4px;
+    max-width:320px;
+    margin:0 auto 10px;
+  }
+  .grid-cell{
+    aspect-ratio:1;
+    border:1px solid var(--border);
+    cursor:pointer;
+  }
+  .grid-cell.selected{outline:3px solid var(--navy); outline-offset:-3px;}
+
+  .slider-captcha{
+    position:relative;
+    background:#fff;
+    border:1px solid var(--border);
+    height:44px;
+    margin-bottom:10px;
+    touch-action:none;
+  }
+  .slider-track-target{
+    position:absolute;
+    top:0; bottom:0;
+    width:34px;
+    background:rgba(29,107,51,0.15);
+    border-left:2px dashed var(--green);
+    border-right:2px dashed var(--green);
+  }
+  .slider-handle{
+    position:absolute;
+    top:2px; left:2px;
+    width:40px; height:40px;
+    background:var(--navy);
+    color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    cursor:grab;
+    font-size:16px;
+    user-select:none;
+  }
+  .slider-handle:active{cursor:grabbing;}
+
+  .order-captcha{
+    display:flex;
+    gap:6px;
+    flex-wrap:wrap;
+    margin-bottom:10px;
+  }
+  .order-chip{
+    background:#fff;
+    border:1px solid var(--border);
+    padding:8px 12px;
+    font-family:"Courier New", monospace;
+    font-size:13px;
+    cursor:pointer;
+    user-select:none;
+  }
+  .order-chip.picked{
+    background:var(--navy);
+    color:#fff;
+  }
+  .order-answer{
+    font-family:"Courier New", monospace;
+    font-size:12px;
+    min-height:20px;
+    padding:6px;
+    background:#fff;
+    border:1px dashed var(--border);
+    margin-bottom:10px;
+  }
 
   .compliance-list{
     background:#fff;
@@ -377,6 +499,14 @@ layout: null
     padding:12px;
     margin-bottom:6px;
   }
+
+  .ref-block{
+    background:#fff;
+    border:1px solid var(--border);
+    padding:10px;
+    margin-bottom:10px;
+  }
+  .ref-block h4{margin:0 0 8px; font-size:13px; color:var(--navy);}
 
   /* ---------- Processing / Result ---------- */
   .hidden{display:none !important;}
@@ -449,6 +579,45 @@ layout: null
   }
 
   .appeal-form{padding:4px 2px;}
+
+  /* ---------- Victory ---------- */
+  .victory-view{
+    text-align:center;
+    padding:10px 4px 4px;
+  }
+  .certificate{
+    border:6px double var(--gold);
+    background:
+      radial-gradient(circle at 50% 0%, #FFFDF6, #F8F1DC 70%);
+    padding:26px 18px;
+    position:relative;
+  }
+  .certificate::before{
+    content:"";
+    position:absolute; inset:8px;
+    border:1px solid var(--gold);
+    pointer-events:none;
+  }
+  .cert-eagle{font-size:38px; margin-bottom:6px;}
+  .cert-title{
+    font-family:Georgia, serif;
+    font-size:22px;
+    color:var(--navy-dark);
+    margin:4px 0;
+    letter-spacing:0.5px;
+  }
+  .cert-sub{font-size:12px; color:#7A6A2E; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:14px;}
+  .cert-body{font-size:14px; color:var(--ink); margin:14px 0;}
+  .cert-code{
+    font-family:"Courier New", monospace;
+    font-size:13px;
+    color:var(--navy);
+    margin-top:14px;
+  }
+  #victoryUnlockCode{
+    font-weight:bold;
+    letter-spacing:1px;
+  }
 
   /* ---------- Footer ---------- */
   footer.portal-footer{
@@ -580,8 +749,9 @@ layout: null
     margin-bottom:2px;
     opacity:0.92;
   }
+  .log-entry.secret{color:var(--gold);}
 
-  /* ---------- ToS Modal ---------- */
+  /* ---------- Modal ---------- */
   .modal-overlay{
     position:fixed; inset:0;
     background:rgba(15,20,15,0.6);
@@ -600,6 +770,7 @@ layout: null
     max-height:80vh;
     overflow-y:auto;
   }
+  .modal-card.gold-border{border-color:var(--gold);}
   .modal-card h3{margin-top:0; color:var(--navy); font-size:16px;}
   .modal-card p{font-size:13px;}
   .modal-card button{margin-top:12px;}
@@ -609,6 +780,7 @@ layout: null
     .denial-stamp{font-size:24px; padding:2px 8px; right:8px; top:6px;}
     #denialReason{max-width:100%;}
     .form-section{padding:16px 14px 4px;}
+    .cert-title{font-size:18px;}
   }
 </style>
 </head>
@@ -616,7 +788,7 @@ layout: null
 
 <header class="portal-header">
   <div class="header-top">
-    <div class="seal" aria-hidden="true">🦅</div>
+    <div class="seal" id="sealClick" aria-hidden="true">🦅</div>
     <div class="header-titles">
       <p class="agency-name">UNITED STATES FEDERAL BUREAU OF DIGITAL PROVISIONING</p>
       <h1 class="portal-title">Asset Request Portal</h1>
@@ -624,7 +796,7 @@ layout: null
     </div>
   </div>
   <div class="header-controls">
-    <span>Case No. <span id="caseNumber">—</span> · Filed <span id="submissionTimestamp">—</span></span>
+    <span>Case No. <span id="caseNumber">—</span> · Filed <span id="submissionTimestamp">—</span> <span class="secret-dot" id="secretDot" aria-hidden="true"></span></span>
     <span style="display:flex; gap:10px; align-items:center;">
       <a href="#" id="abandonLink">Abandon Application</a>
       <button id="musicToggle" type="button">🎵 Hold Music: OFF</button>
@@ -633,6 +805,7 @@ layout: null
 </header>
 
 <div class="queue-ticker" id="queueTicker" aria-live="polite">You are caller number —. Estimated wait: calculating.</div>
+<div class="grind-ticker" id="grindTicker">Total sections completed this session: 0 · Total denials this session: 0</div>
 
 <div class="notice-strip">
   <details class="office-hours">
@@ -651,12 +824,12 @@ layout: null
 <main class="form-container">
 
   <div class="progress-strip">
-    <span id="sectionLabel">SECTION 1 OF 4 — PERSONAL DEMOGRAPHICS</span>
+    <span id="sectionLabel">SECTION 1 OF 14 — PERSONAL DEMOGRAPHICS</span>
     <span id="timerDisplay">00:45</span>
   </div>
   <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
 
-  <!-- SECTION 1 -->
+  <!-- SECTION 1: Personal Demographics -->
   <section class="form-section active" id="section1">
     <h2 class="section-heading">Section 1 — Personal Demographics &amp; Justification</h2>
     <form id="form1" novalidate>
@@ -729,7 +902,7 @@ layout: null
 
       <div class="field-row">
         <label for="justification">Justification Essay
-          <span class="field-hint">State, in your own words, your compelling government interest in this asset. Minimum 5 words.</span>
+          <span class="field-hint">State, in your own words, your compelling government interest in this asset. Minimum 5 words. (Try typing "beige" three times fast somewhere in this form.)</span>
         </label>
         <textarea id="justification" rows="4"></textarea>
         <div class="word-count" id="wordCount">0 words (minimum 5 required)</div>
@@ -743,14 +916,14 @@ layout: null
     </div>
   </section>
 
-  <!-- SECTION 2 -->
+  <!-- SECTION 2: Signature -->
   <section class="form-section" id="section2">
     <h2 class="section-heading">Section 2 — Digital Signature &amp; Sworn Affidavit</h2>
 
     <div class="field-row">
       <label>Sign in the box below using your mouse or finger</label>
       <div class="sig-wrap">
-        <canvas id="sigCanvas"></canvas>
+        <canvas class="sig-canvas" id="sigCanvas"></canvas>
       </div>
       <div class="sig-controls">
         <span class="stamp" id="sigStamp">PENDING SIGNATURE</span>
@@ -778,9 +951,95 @@ layout: null
     </div>
   </section>
 
-  <!-- SECTION 3 -->
+  <!-- SECTION 3: Employment & Financial -->
   <section class="form-section" id="section3">
-    <h2 class="section-heading">Section 3 — Compliance Checklist &amp; Verification</h2>
+    <h2 class="section-heading">Section 3 — Employment &amp; Financial History</h2>
+    <p class="section-sub">Required to assess your capacity to responsibly own a single white pixel.</p>
+
+    <div class="field-row">
+      <label for="employer">Current Employer</label>
+      <input type="text" id="employer">
+      <div class="field-error" id="err-employer"></div>
+    </div>
+    <div class="grid-2">
+      <div class="field-row">
+        <label for="jobTitle">Job Title</label>
+        <input type="text" id="jobTitle">
+        <div class="field-error" id="err-jobTitle"></div>
+      </div>
+      <div class="field-row">
+        <label for="yearsEmployed">Years at Current Employer</label>
+        <input type="number" id="yearsEmployed" min="0" step="1">
+        <div class="field-error" id="err-yearsEmployed"></div>
+      </div>
+    </div>
+    <div class="field-row">
+      <label for="pixelBudget">Estimated Monthly Pixel Maintenance Budget (USD)
+        <span class="field-hint">The asset requires no maintenance. Please respond anyway.</span>
+      </label>
+      <input type="text" id="pixelBudget" inputmode="numeric">
+      <div class="field-error" id="err-pixelBudget"></div>
+    </div>
+    <div class="field-row">
+      <label for="financialRef">Name of a Financial Reference Willing to Vouch for This Application</label>
+      <input type="text" id="financialRef">
+      <div class="field-error" id="err-financialRef"></div>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn secondary" id="s3back" type="button">Back</button>
+      <button class="btn" id="s3next" type="button">Proceed to Section 4</button>
+    </div>
+  </section>
+
+  <!-- SECTION 4: Household Composition -->
+  <section class="form-section" id="section4">
+    <h2 class="section-heading">Section 4 — Household Composition</h2>
+    <p class="section-sub">Federal Pixel Registry requires a full accounting of your household.</p>
+
+    <div class="grid-2">
+      <div class="field-row">
+        <label for="householdSize">Number of Household Members (incl. yourself)</label>
+        <input type="number" id="householdSize" min="1" step="1">
+        <div class="field-error" id="err-householdSize"></div>
+      </div>
+      <div class="field-row">
+        <label for="numPets">Number of Pets</label>
+        <input type="number" id="numPets" min="0" step="1">
+        <div class="field-error" id="err-numPets"></div>
+      </div>
+    </div>
+    <div class="field-row">
+      <label for="numPlants">Number of Houseplants Aware of This Application</label>
+      <input type="number" id="numPlants" min="0" step="1">
+      <div class="field-error" id="err-numPlants"></div>
+    </div>
+    <div class="field-row">
+      <label for="dwellingType">Dwelling Type</label>
+      <select id="dwellingType">
+        <option value="">— Select —</option>
+        <option>House</option>
+        <option>Apartment</option>
+        <option>Condominium</option>
+        <option>Undisclosed Structure</option>
+      </select>
+      <div class="field-error" id="err-dwellingType"></div>
+    </div>
+    <label class="checkbox-row">
+      <input type="checkbox" id="householdBeige">
+      <span>I confirm that at least one wall in my household is, or could plausibly be described as, beige.</span>
+    </label>
+    <div class="field-error" id="err-householdBeige"></div>
+
+    <div class="nav-buttons">
+      <button class="btn secondary" id="s4back" type="button">Back</button>
+      <button class="btn" id="s4next" type="button">Proceed to Section 5</button>
+    </div>
+  </section>
+
+  <!-- SECTION 5: Compliance + Bureaucracy captcha -->
+  <section class="form-section" id="section5">
+    <h2 class="section-heading">Section 5 — Compliance Checklist &amp; Verification</h2>
 
     <div class="compliance-list">
       <label class="checkbox-row"><input type="checkbox" class="compliance-check"><span>I confirm this request does not exceed my Quarterly Beige Allocation Threshold.</span></label>
@@ -800,14 +1059,226 @@ layout: null
     </div>
 
     <div class="nav-buttons">
-      <button class="btn secondary" id="s3back" type="button">Back</button>
-      <button class="btn" id="s3submit" type="button">Submit Form 84-B</button>
+      <button class="btn secondary" id="s5back" type="button">Back</button>
+      <button class="btn" id="s5next" type="button">Proceed to Section 6</button>
     </div>
   </section>
 
-  <!-- SECTION 4 -->
-  <section class="form-section" id="section4">
-    <h2 class="section-heading">Section 4 — Processing &amp; Determination</h2>
+  <!-- SECTION 6: Math captcha gate -->
+  <section class="form-section" id="section6">
+    <h2 class="section-heading">Section 6 — Numerical Aptitude Gate</h2>
+    <p class="section-sub">The Bureau must confirm applicants can perform basic arithmetic before issuing pixels.</p>
+    <div class="field-row">
+      <label for="mathInput">Solve the equation below</label>
+      <div class="captcha-math" id="mathDisplay">— + — = ?</div>
+      <input type="text" id="mathInput" inputmode="numeric" autocomplete="off">
+      <div class="field-error" id="err-math"></div>
+    </div>
+    <div class="nav-buttons">
+      <button class="btn secondary" id="s6back" type="button">Back</button>
+      <button class="btn" id="s6next" type="button">Proceed to Section 7</button>
+    </div>
+  </section>
+
+  <!-- SECTION 7: Travel History -->
+  <section class="form-section" id="section7">
+    <h2 class="section-heading">Section 7 — Travel History Disclosure</h2>
+    <p class="section-sub">Pixels are sensitive to jet lag. This section assesses your travel risk profile.</p>
+    <div class="field-row">
+      <label for="lastTrip">Most Recent City Visited Outside Your Home State/Region</label>
+      <input type="text" id="lastTrip">
+      <div class="field-error" id="err-lastTrip"></div>
+    </div>
+    <div class="grid-2">
+      <div class="field-row">
+        <label for="tripPurpose">Purpose of That Trip</label>
+        <select id="tripPurpose">
+          <option value="">— Select —</option>
+          <option>Business</option>
+          <option>Leisure</option>
+          <option>Visiting Family</option>
+          <option>Prefer Not to Disclose</option>
+        </select>
+        <div class="field-error" id="err-tripPurpose"></div>
+      </div>
+      <div class="field-row">
+        <label for="timeZonesCrossed">Approximate Time Zones Crossed</label>
+        <input type="number" id="timeZonesCrossed" min="0" step="1">
+        <div class="field-error" id="err-timeZonesCrossed"></div>
+      </div>
+    </div>
+    <label class="checkbox-row">
+      <input type="checkbox" id="passportBeige">
+      <span>I confirm my passport cover is an acceptable, non-subversive color.</span>
+    </label>
+    <div class="field-error" id="err-passportBeige"></div>
+
+    <div class="nav-buttons">
+      <button class="btn secondary" id="s7back" type="button">Back</button>
+      <button class="btn" id="s7next" type="button">Proceed to Section 8</button>
+    </div>
+  </section>
+
+  <!-- SECTION 8: Word scramble captcha gate -->
+  <section class="form-section" id="section8">
+    <h2 class="section-heading">Section 8 — Lexical Unscrambling Gate</h2>
+    <p class="section-sub">Rearrange the letters below to form the correct bureaucratic term.</p>
+    <div class="field-row">
+      <label for="scrambleInput">Unscramble this word</label>
+      <div class="captcha-display small" id="scrambleDisplay">— — — —</div>
+      <input type="text" id="scrambleInput" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <div class="field-error" id="err-scramble"></div>
+    </div>
+    <div class="nav-buttons">
+      <button class="btn secondary" id="s8back" type="button">Back</button>
+      <button class="btn" id="s8next" type="button">Proceed to Section 9</button>
+    </div>
+  </section>
+
+  <!-- SECTION 9: Character References -->
+  <section class="form-section" id="section9">
+    <h2 class="section-heading">Section 9 — Character References</h2>
+    <p class="section-sub">Provide three (3) individuals willing to attest to your character regarding pixel ownership.</p>
+
+    <div class="ref-block">
+      <h4>Reference 1</h4>
+      <div class="grid-2">
+        <input type="text" id="ref1Name" placeholder="Full Name">
+        <input type="text" id="ref1Relation" placeholder="Relationship to Applicant">
+      </div>
+    </div>
+    <div class="ref-block">
+      <h4>Reference 2</h4>
+      <div class="grid-2">
+        <input type="text" id="ref2Name" placeholder="Full Name">
+        <input type="text" id="ref2Relation" placeholder="Relationship to Applicant">
+      </div>
+    </div>
+    <div class="ref-block">
+      <h4>Reference 3 (must not be a relative, pet, or houseplant listed in Section 4)</h4>
+      <div class="grid-2">
+        <input type="text" id="ref3Name" placeholder="Full Name">
+        <input type="text" id="ref3Relation" placeholder="Relationship to Applicant">
+      </div>
+    </div>
+    <div class="field-error" id="err-references"></div>
+
+    <div class="nav-buttons">
+      <button class="btn secondary" id="s9back" type="button">Back</button>
+      <button class="btn" id="s9next" type="button">Proceed to Section 10</button>
+    </div>
+  </section>
+
+  <!-- SECTION 10: Digital Footprint -->
+  <section class="form-section" id="section10">
+    <h2 class="section-heading">Section 10 — Digital Footprint Questionnaire</h2>
+    <p class="section-sub">The Bureau must assess whether you have prior unauthorized experience with pixels.</p>
+
+    <div class="field-row">
+      <label for="pixelExperience">Have you ever viewed a white pixel without authorization?</label>
+      <select id="pixelExperience">
+        <option value="">— Select —</option>
+        <option>Yes</option>
+        <option>No</option>
+        <option>Not that I recall</option>
+        <option>Define "viewed"</option>
+      </select>
+      <div class="field-error" id="err-pixelExperience"></div>
+    </div>
+    <div class="field-row">
+      <label for="devicesOwned">Number of Screen-Bearing Devices You Own</label>
+      <input type="number" id="devicesOwned" min="0" step="1">
+      <div class="field-error" id="err-devicesOwned"></div>
+    </div>
+    <div class="field-row">
+      <label for="digitalStatement">Briefly describe your relationship with the concept of "blank space" (min 5 words)</label>
+      <textarea id="digitalStatement" rows="3"></textarea>
+      <div class="field-error" id="err-digitalStatement"></div>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn secondary" id="s10back" type="button">Back</button>
+      <button class="btn" id="s10next" type="button">Proceed to Section 11</button>
+    </div>
+  </section>
+
+  <!-- SECTION 11: Grid captcha gate -->
+  <section class="form-section" id="section11">
+    <h2 class="section-heading">Section 11 — Visual Compliance Gate</h2>
+    <p class="section-sub" id="gridInstruction">Select all squares matching the target shade of beige.</p>
+    <div class="grid-captcha" id="gridCaptcha"></div>
+    <div class="field-error" id="err-grid"></div>
+    <div class="nav-buttons">
+      <button class="btn secondary" id="s11back" type="button">Back</button>
+      <button class="btn" id="s11next" type="button">Proceed to Section 12</button>
+    </div>
+  </section>
+
+  <!-- SECTION 12: Notarization -->
+  <section class="form-section" id="section12">
+    <h2 class="section-heading">Section 12 — Notarization Simulation</h2>
+    <p class="section-sub">Sign again. Notarization requires a second, distinct signature. Signatures matching Section 2 exactly will be rejected as insufficiently sincere.</p>
+    <div class="field-row">
+      <label>Second Signature</label>
+      <div class="sig-wrap small">
+        <canvas class="sig-canvas" id="sigCanvas2"></canvas>
+      </div>
+      <div class="sig-controls">
+        <span class="stamp" id="sigStamp2">PENDING SIGNATURE</span>
+        <button class="btn secondary" id="clearSig2" type="button">Clear Signature</button>
+      </div>
+      <div class="field-error" id="err-signature2"></div>
+    </div>
+    <label class="checkbox-row">
+      <input type="checkbox" id="notaryAck">
+      <span>I acknowledge that this notarization is being performed by a notary hologram of unconfirmed licensure.</span>
+    </label>
+    <div class="field-error" id="err-notaryAck"></div>
+    <div class="nav-buttons">
+      <button class="btn secondary" id="s12back" type="button">Back</button>
+      <button class="btn" id="s12next" type="button">Proceed to Section 13</button>
+    </div>
+  </section>
+
+  <!-- SECTION 13: Slider captcha gate -->
+  <section class="form-section" id="section13">
+    <h2 class="section-heading">Section 13 — Alignment Verification Gate</h2>
+    <p class="section-sub">Drag the seal into the marked zone to confirm you are not an automated system.</p>
+    <div class="slider-captcha" id="sliderCaptcha">
+      <div class="slider-track-target" id="sliderTarget"></div>
+      <div class="slider-handle" id="sliderHandle">🦅</div>
+    </div>
+    <div class="field-error" id="err-slider"></div>
+    <div class="nav-buttons">
+      <button class="btn secondary" id="s13back" type="button">Back</button>
+      <button class="btn" id="s13next" type="button">Proceed to Section 14</button>
+    </div>
+  </section>
+
+  <!-- SECTION 14: Final Review + phrase captcha -->
+  <section class="form-section" id="section14">
+    <h2 class="section-heading">Section 14 — Final Review &amp; Sworn Oath</h2>
+    <p class="section-sub">This is the final section. Type the oath below exactly, including punctuation.</p>
+    <div class="captcha-phrase" id="oathPhrase">Loading oath...</div>
+    <div class="field-row">
+      <label for="oathInput">Retype the oath exactly as shown</label>
+      <textarea id="oathInput" rows="3" autocomplete="off" spellcheck="false"></textarea>
+      <div class="field-error" id="err-oath"></div>
+    </div>
+    <label class="checkbox-row">
+      <input type="checkbox" id="finalAck">
+      <span>I confirm that everything I have entered across all 14 sections is true, and that I understand this changes nothing.</span>
+    </label>
+    <div class="field-error" id="err-finalAck"></div>
+    <div class="nav-buttons">
+      <button class="btn secondary" id="s14back" type="button">Back</button>
+      <button class="btn gold" id="s14submit" type="button">Submit Complete Application</button>
+    </div>
+  </section>
+
+  <!-- SECTION 15: Processing / Determination / Victory -->
+  <section class="form-section" id="section15">
+    <h2 class="section-heading">Final Determination</h2>
 
     <div class="processing-view" id="processingView">
       <div class="spinner" aria-hidden="true"></div>
@@ -846,6 +1317,23 @@ layout: null
         <button class="btn" id="appealSubmit" type="button">Submit Appeal</button>
       </div>
     </div>
+
+    <div class="victory-view hidden" id="victoryView">
+      <div class="certificate" id="certificate">
+        <div class="cert-eagle">🦅</div>
+        <div class="cert-sub">Federal Bureau of Digital Provisioning</div>
+        <div class="cert-title">Certificate of Asset Approval</div>
+        <div class="cert-sub" style="margin-bottom:0;">Form 84-B — Final Determination</div>
+        <p class="cert-body">This certifies that the applicant identified under case number <strong id="certCaseNumber">—</strong> has, against overwhelming odds and after extensive review, been granted issuance of one (1) white pixel, rendered in the JPEG format, effective immediately.</p>
+        <p class="cert-body" style="font-size:12px; color:#7A6A2E;">Approved on the <span id="certDate">—</span> after <span id="certAttempts">—</span> completed application cycle(s) and <span id="certDenials">—</span> prior denial(s) this session.</p>
+        <div class="cert-code">UNLOCK CODE: <span id="victoryUnlockCode">—</span></div>
+      </div>
+      <div class="result-actions">
+        <button class="btn gold" id="downloadCertBtn" type="button">Download Certificate</button>
+        <button class="btn gold" id="downloadPixelBtn" type="button">Download Your White Pixel</button>
+        <button class="btn secondary" id="victoryRestartBtn" type="button">File Another Application</button>
+      </div>
+    </div>
   </section>
 
 </main>
@@ -855,7 +1343,7 @@ layout: null
     <button id="printBtn" type="button">Print for Your Records</button>
     <a href="#" id="bypassLink">Report Waste, Fraud &amp; Abuse</a>
   </div>
-  <p class="disclaimer">This is a satirical, non-functional parody of a government portal. It is not affiliated with any real government agency, and Form 84-B is fictional. Presented in reduced type size as required by no law whatsoever.</p>
+  <p class="disclaimer" id="disclaimerText">This is a satirical, non-functional parody of a government portal. It is not affiliated with any real government agency, and Form 84-B is fictional. Presented in reduced type size as required by no law whatsoever.</p>
 </footer>
 
 <button id="chatToggle" type="button" aria-label="Open chat with Agent Byrne-9">💬</button>
@@ -879,6 +1367,14 @@ layout: null
   </div>
 </div>
 
+<div id="secretModal" class="modal-overlay hidden">
+  <div class="modal-card gold-border">
+    <h3 id="secretModalTitle">Secret Found</h3>
+    <p id="secretModalBody">You found something.</p>
+    <button class="btn gold" id="secretModalClose" type="button">Close</button>
+  </div>
+</div>
+
 <div id="auditBar">
   <button id="auditToggleBtn" type="button">▲ SYSTEM AUDIT LOG (tap to expand)</button>
   <div id="auditLogContent"></div>
@@ -888,15 +1384,42 @@ layout: null
 (function(){
   "use strict";
 
+  var TOTAL_SECTIONS = 14;
+
+  var sectionTitles = {
+    1:'PERSONAL DEMOGRAPHICS', 2:'SIGNATURE & AFFIDAVIT', 3:'EMPLOYMENT & FINANCIAL',
+    4:'HOUSEHOLD COMPOSITION', 5:'COMPLIANCE & VERIFICATION', 6:'NUMERICAL APTITUDE GATE',
+    7:'TRAVEL HISTORY', 8:'LEXICAL UNSCRAMBLING GATE', 9:'CHARACTER REFERENCES',
+    10:'DIGITAL FOOTPRINT', 11:'VISUAL COMPLIANCE GATE', 12:'NOTARIZATION SIMULATION',
+    13:'ALIGNMENT VERIFICATION GATE', 14:'FINAL REVIEW & OATH'
+  };
+
   var state = {
     section: 1,
     timeLeft: 45,
     timerId: null,
     appealCount: 0,
     hasSignature: false,
+    hasSignature2: false,
     tosShown: false,
-    musicOn: false
+    musicOn: false,
+    sectionsCompletedTotal: 0,
+    denialsTotal: 0,
+    fullRunsCompleted: 0,
+    secretsFound: 0,
+    beigeTypedCount: 0,
+    konamiIndex: 0,
+    sealClicks: 0,
+    mathAnswer: null,
+    scrambleAnswer: '',
+    gridTargetColor: '',
+    gridCorrectCells: [],
+    gridSelectedCells: [],
+    sliderSolved: false,
+    oathText: ''
   };
+
+  var KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
 
   function pad(n){ return n.toString().padStart(2,'0'); }
 
@@ -904,14 +1427,64 @@ layout: null
     return 'FBDP-' + new Date().getFullYear() + '-' + Math.floor(100000 + Math.random()*900000);
   }
 
-  function log(msg){
+  function log(msg, secret){
     var time = new Date().toLocaleTimeString('en-US',{hour12:false});
     var entry = document.createElement('div');
-    entry.className = 'log-entry';
+    entry.className = 'log-entry' + (secret ? ' secret' : '');
     entry.textContent = '[' + time + '] ' + msg;
     var container = document.getElementById('auditLogContent');
     container.appendChild(entry);
     container.scrollTop = container.scrollHeight;
+  }
+
+  function updateGrindTicker(){
+    document.getElementById('grindTicker').textContent =
+      'Total sections completed this session: ' + state.sectionsCompletedTotal +
+      ' · Total denials this session: ' + state.denialsTotal +
+      (state.fullRunsCompleted > 0 ? ' · Full applications completed: ' + state.fullRunsCompleted : '');
+  }
+
+  /* ---------- Secrets ---------- */
+  function revealSecret(title, body){
+    state.secretsFound++;
+    document.getElementById('secretModalTitle').textContent = title;
+    document.getElementById('secretModalBody').textContent = body;
+    document.getElementById('secretModal').classList.remove('hidden');
+    log('SECRET DISCOVERED (#' + state.secretsFound + '): ' + title, true);
+  }
+  document.getElementById('secretModalClose').addEventListener('click', function(){
+    document.getElementById('secretModal').classList.add('hidden');
+  });
+
+  document.getElementById('sealClick').addEventListener('click', function(){
+    state.sealClicks++;
+    if(state.sealClicks === 5){
+      revealSecret('The Eagle Blinks', 'You have clicked the seal five times. The eagle acknowledges you, though it cannot help with your application. Its acknowledgment has been logged and will accomplish nothing.');
+    }
+  });
+
+  document.getElementById('secretDot').addEventListener('click', function(){
+    revealSecret('A Single Pixel of Truth', 'This dot is not a bug. It is the closest thing to the white pixel you will see for a while. Consider it a preview, and a taunt.');
+  });
+
+  document.addEventListener('keydown', function(e){
+    if(e.key === KONAMI[state.konamiIndex]){
+      state.konamiIndex++;
+      if(state.konamiIndex === KONAMI.length){
+        state.konamiIndex = 0;
+        revealSecret('Konami Protocol Recognized', 'The Bureau\u2019s mainframe recognizes this sequence from 1986 and is legally obligated to acknowledge it, but not to act on it. No shortcuts have been granted. Nice try.');
+      }
+    } else {
+      state.konamiIndex = (e.key === KONAMI[0]) ? 1 : 0;
+    }
+  });
+
+  function checkBeigeTyping(value){
+    var count = (value.toLowerCase().match(/beige/g) || []).length;
+    if(count >= 3 && state.beigeTypedCount < 1){
+      state.beigeTypedCount = 1;
+      revealSecret('Beige Threefold', 'You have typed "beige" three or more times in a single field. The Bureau finds this deeply reassuring and mildly concerning in equal measure.');
+    }
   }
 
   /* ---------- Timer ---------- */
@@ -930,33 +1503,29 @@ layout: null
       }
     }, 1000);
   }
-
   function stopTimer(){
     clearInterval(state.timerId);
     document.getElementById('timerDisplay').textContent = '—:—';
     document.getElementById('timerDisplay').classList.remove('urgent');
   }
-
   function updateTimerDisplay(){
     var el = document.getElementById('timerDisplay');
     el.textContent = '00:' + pad(state.timeLeft);
     el.classList.toggle('urgent', state.timeLeft <= 10);
   }
 
-  /* ---------- Section navigation ---------- */
-  var sectionTitles = {
-    1:'PERSONAL DEMOGRAPHICS',
-    2:'SIGNATURE & AFFIDAVIT',
-    3:'COMPLIANCE & VERIFICATION',
-    4:'PROCESSING & DETERMINATION'
-  };
-
+  /* ---------- Navigation ---------- */
   function showSection(n, skipTimer){
     document.querySelectorAll('.form-section').forEach(function(s){ s.classList.remove('active'); });
     document.getElementById('section' + n).classList.add('active');
     state.section = n;
-    document.getElementById('sectionLabel').textContent = 'SECTION ' + n + ' OF 4 — ' + sectionTitles[n];
-    document.getElementById('progressFill').style.width = ((n - 1) / 3 * 100) + '%';
+    if(n <= TOTAL_SECTIONS){
+      document.getElementById('sectionLabel').textContent = 'SECTION ' + n + ' OF ' + TOTAL_SECTIONS + ' — ' + sectionTitles[n];
+      document.getElementById('progressFill').style.width = ((n - 1) / TOTAL_SECTIONS * 100) + '%';
+    } else {
+      document.getElementById('sectionLabel').textContent = 'FINAL DETERMINATION';
+      document.getElementById('progressFill').style.width = '100%';
+    }
     if(skipTimer){ stopTimer(); } else { startTimer(); }
     log('Navigated to Section ' + n + '.');
     window.scrollTo({top:0, behavior:'smooth'});
@@ -966,19 +1535,29 @@ layout: null
     scopeEl.querySelectorAll('.field-error').forEach(function(e){ e.textContent=''; });
   }
 
-  function resetForm(){
-    document.getElementById('form1').reset();
-    clearErrors(document.getElementById('section1'));
+  function advance(fromN, toN, sectionEl){
+    state.sectionsCompletedTotal++;
+    updateGrindTicker();
+    showSection(toN);
+  }
+
+  function resetForm(fullReset){
+    document.querySelectorAll('input[type=text], input[type=number], input[type=date]').forEach(function(el){ el.value=''; });
+    document.querySelectorAll('textarea').forEach(function(el){ el.value=''; });
+    document.querySelectorAll('select').forEach(function(el){ el.value=''; });
+    document.querySelectorAll('input[type=checkbox]').forEach(function(el){ el.checked=false; });
+    document.querySelectorAll('.field-error').forEach(function(e){ e.textContent=''; });
     document.getElementById('wordCount').textContent = '0 words (minimum 5 required)';
-    document.getElementById('affidavit').checked = false;
-    clearErrors(document.getElementById('section2'));
-    document.querySelectorAll('.compliance-check').forEach(function(c){ c.checked = false; });
-    document.getElementById('captchaInput').value = '';
-    clearErrors(document.getElementById('section3'));
-    clearSignature();
+    clearSignature(); clearSignature2();
+    document.querySelectorAll('.grid-cell').forEach(function(c){ c.classList.remove('selected'); });
+    state.gridSelectedCells = [];
+    state.sliderSolved = false;
+    document.getElementById('sliderHandle').style.left = '2px';
+
     document.getElementById('processingView').classList.remove('hidden');
     document.getElementById('resultView').classList.add('hidden');
     document.getElementById('appealForm').classList.add('hidden');
+    document.getElementById('victoryView').classList.add('hidden');
     document.getElementById('appealHint').classList.add('hidden');
     state.appealCount = 0;
     document.getElementById('caseNumber').textContent = genCaseNumber();
@@ -990,17 +1569,14 @@ layout: null
   document.getElementById('taxId').addEventListener('input', function(e){
     var digits = e.target.value.replace(/\D/g,'').slice(0,10);
     var formatted = digits;
-    if(digits.length > 3 && digits.length <= 6){
-      formatted = digits.slice(0,3) + '-' + digits.slice(3);
-    } else if(digits.length > 6){
-      formatted = digits.slice(0,3) + '-' + digits.slice(3,6) + '-' + digits.slice(6);
-    }
+    if(digits.length > 3 && digits.length <= 6){ formatted = digits.slice(0,3) + '-' + digits.slice(3); }
+    else if(digits.length > 6){ formatted = digits.slice(0,3) + '-' + digits.slice(3,6) + '-' + digits.slice(6); }
     e.target.value = formatted;
   });
-
   document.getElementById('justification').addEventListener('input', function(e){
     var words = e.target.value.trim().split(/\s+/).filter(Boolean).length;
     document.getElementById('wordCount').textContent = words + ' word' + (words !== 1 ? 's' : '') + ' (minimum 5 required)';
+    checkBeigeTyping(e.target.value);
   });
 
   document.getElementById('s1next').addEventListener('click', function(){
@@ -1009,139 +1585,120 @@ layout: null
     var valid = true;
     ['fullName','street','city','state','zip'].forEach(function(id){
       var el = document.getElementById(id);
-      if(!el.value.trim()){
-        document.getElementById('err-' + id).textContent = 'This field is required.';
-        valid = false;
-        log('Validation error: ' + id + ' is empty.');
-      }
+      if(!el.value.trim()){ document.getElementById('err-' + id).textContent = 'This field is required.'; valid = false; log('Validation error: ' + id + ' is empty.'); }
     });
-    if(!document.getElementById('dob').value){
-      document.getElementById('err-dob').textContent = 'Date of birth is required.';
-      valid = false;
-      log('Validation error: date of birth is empty.');
-    }
+    if(!document.getElementById('dob').value){ document.getElementById('err-dob').textContent = 'Date of birth is required.'; valid = false; }
     var taxId = document.getElementById('taxId').value.replace(/\D/g,'');
-    if(taxId.length !== 10){
-      document.getElementById('err-taxId').textContent = 'Tax ID must contain exactly 10 digits.';
-      valid = false;
-      log('Validation error: Tax ID invalid (' + taxId.length + ' digits).');
-    }
-    if(!document.getElementById('bloodType').value){
-      document.getElementById('err-bloodType').textContent = 'Blood type is required for load-balancing purposes.';
-      valid = false;
-      log('Validation error: blood type not selected.');
-    }
+    if(taxId.length !== 10){ document.getElementById('err-taxId').textContent = 'Tax ID must contain exactly 10 digits.'; valid = false; }
+    if(!document.getElementById('bloodType').value){ document.getElementById('err-bloodType').textContent = 'Blood type is required.'; valid = false; }
     var words = document.getElementById('justification').value.trim().split(/\s+/).filter(Boolean);
-    if(words.length < 5){
-      document.getElementById('err-justification').textContent = 'Justification must contain at least 5 words.';
-      valid = false;
-      log('Validation error: justification essay too short (' + words.length + ' words).');
-    }
-    if(valid){
-      log('Section 1 validated successfully.');
-      showSection(2);
-      maybeShowTos();
-    } else {
-      section.classList.add('shake');
-      setTimeout(function(){ section.classList.remove('shake'); }, 400);
-    }
+    if(words.length < 5){ document.getElementById('err-justification').textContent = 'Justification must contain at least 5 words.'; valid = false; }
+    if(valid){ log('Section 1 validated successfully.'); advance(1,2,section); maybeShowTos(); }
+    else { section.classList.add('shake'); setTimeout(function(){ section.classList.remove('shake'); }, 400); }
   });
 
   /* ---------- Section 2: Signature ---------- */
-  var canvas = document.getElementById('sigCanvas');
-  var ctx = canvas.getContext('2d');
-
-  function resizeCanvas(){
-    var rect = canvas.getBoundingClientRect();
-    var ratio = window.devicePixelRatio || 1;
-    canvas.width = rect.width * ratio;
-    canvas.height = rect.height * ratio;
-    ctx.setTransform(1,0,0,1,0,0);
-    ctx.scale(ratio, ratio);
-    ctx.strokeStyle = '#1B3A5C';
-    ctx.lineWidth = 2;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-  }
-  window.addEventListener('resize', resizeCanvas);
-  resizeCanvas();
-
-  var drawing = false;
-  function getPos(e){
-    var rect = canvas.getBoundingClientRect();
-    var point = e.touches && e.touches.length ? e.touches[0] : e;
-    return { x: point.clientX - rect.left, y: point.clientY - rect.top };
-  }
-  function startDraw(e){
-    drawing = true;
-    var p = getPos(e);
-    ctx.beginPath();
-    ctx.moveTo(p.x, p.y);
-    e.preventDefault();
-  }
-  function moveDraw(e){
-    if(!drawing) return;
-    var p = getPos(e);
-    ctx.lineTo(p.x, p.y);
-    ctx.stroke();
-    if(!state.hasSignature){
-      state.hasSignature = true;
-      var stampEl = document.getElementById('sigStamp');
-      stampEl.textContent = 'SIGNATURE CAPTURED';
-      stampEl.classList.add('captured');
+  function setupSignature(canvasId, stampId, flagKey){
+    var canvas = document.getElementById(canvasId);
+    var ctx = canvas.getContext('2d');
+    function resize(){
+      var rect = canvas.getBoundingClientRect();
+      var ratio = window.devicePixelRatio || 1;
+      canvas.width = rect.width * ratio;
+      canvas.height = rect.height * ratio;
+      ctx.setTransform(1,0,0,1,0,0);
+      ctx.scale(ratio, ratio);
+      ctx.strokeStyle = '#1B3A5C';
+      ctx.lineWidth = 2;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
     }
-    e.preventDefault();
+    window.addEventListener('resize', resize);
+    resize();
+    var drawing = false;
+    function getPos(e){
+      var rect = canvas.getBoundingClientRect();
+      var point = e.touches && e.touches.length ? e.touches[0] : e;
+      return { x: point.clientX - rect.left, y: point.clientY - rect.top };
+    }
+    function startDraw(e){ drawing = true; var p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); e.preventDefault(); }
+    function moveDraw(e){
+      if(!drawing) return;
+      var p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke();
+      if(!state[flagKey]){
+        state[flagKey] = true;
+        var stampEl = document.getElementById(stampId);
+        stampEl.textContent = 'SIGNATURE CAPTURED';
+        stampEl.classList.add('captured');
+      }
+      e.preventDefault();
+    }
+    function endDraw(){ drawing = false; }
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousemove', moveDraw);
+    window.addEventListener('mouseup', endDraw);
+    canvas.addEventListener('touchstart', startDraw, {passive:false});
+    canvas.addEventListener('touchmove', moveDraw, {passive:false});
+    canvas.addEventListener('touchend', endDraw);
+    return { clear: function(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      state[flagKey] = false;
+      var stampEl = document.getElementById(stampId);
+      stampEl.textContent = 'PENDING SIGNATURE';
+      stampEl.classList.remove('captured');
+    }};
   }
-  function endDraw(){ drawing = false; }
-
-  canvas.addEventListener('mousedown', startDraw);
-  canvas.addEventListener('mousemove', moveDraw);
-  window.addEventListener('mouseup', endDraw);
-  canvas.addEventListener('touchstart', startDraw, {passive:false});
-  canvas.addEventListener('touchmove', moveDraw, {passive:false});
-  canvas.addEventListener('touchend', endDraw);
-
-  function clearSignature(){
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    state.hasSignature = false;
-    var stampEl = document.getElementById('sigStamp');
-    stampEl.textContent = 'PENDING SIGNATURE';
-    stampEl.classList.remove('captured');
-  }
-  document.getElementById('clearSig').addEventListener('click', function(){
-    clearSignature();
-    log('Signature cleared by applicant.');
-  });
+  var sig1 = setupSignature('sigCanvas', 'sigStamp', 'hasSignature');
+  var sig2 = setupSignature('sigCanvas2', 'sigStamp2', 'hasSignature2');
+  function clearSignature(){ sig1.clear(); }
+  function clearSignature2(){ sig2.clear(); }
+  document.getElementById('clearSig').addEventListener('click', function(){ clearSignature(); log('Signature cleared by applicant.'); });
+  document.getElementById('clearSig2').addEventListener('click', function(){ clearSignature2(); log('Second signature cleared by applicant.'); });
 
   document.getElementById('s2next').addEventListener('click', function(){
     var section = document.getElementById('section2');
     var valid = true;
-    if(!state.hasSignature){
-      document.getElementById('err-signature').textContent = 'A signature is required. Typed text does not qualify as a signature.';
-      valid = false;
-      log('Validation error: signature missing.');
-    } else {
-      document.getElementById('err-signature').textContent = '';
-    }
-    if(!document.getElementById('affidavit').checked){
-      document.getElementById('err-affidavit').textContent = 'You must acknowledge the affidavit to proceed.';
-      valid = false;
-      log('Validation error: affidavit not acknowledged.');
-    } else {
-      document.getElementById('err-affidavit').textContent = '';
-    }
-    if(valid){
-      log('Section 2 validated successfully.');
-      showSection(3);
-      renderCaptcha('captchaDisplay');
-    } else {
-      section.classList.add('shake');
-      setTimeout(function(){ section.classList.remove('shake'); }, 400);
-    }
+    if(!state.hasSignature){ document.getElementById('err-signature').textContent = 'A signature is required.'; valid = false; }
+    else { document.getElementById('err-signature').textContent = ''; }
+    if(!document.getElementById('affidavit').checked){ document.getElementById('err-affidavit').textContent = 'You must acknowledge the affidavit.'; valid = false; }
+    else { document.getElementById('err-affidavit').textContent = ''; }
+    if(valid){ log('Section 2 validated successfully.'); advance(2,3,section); }
+    else { section.classList.add('shake'); setTimeout(function(){ section.classList.remove('shake'); }, 400); }
   });
   document.getElementById('s2back').addEventListener('click', function(){ showSection(1); });
 
-  /* ---------- Section 3: Compliance + Captcha ---------- */
+  /* ---------- Section 3: Employment ---------- */
+  document.getElementById('s3next').addEventListener('click', function(){
+    var section = document.getElementById('section3');
+    clearErrors(section);
+    var valid = true;
+    ['employer','jobTitle','financialRef'].forEach(function(id){
+      var el = document.getElementById(id);
+      if(!el.value.trim()){ document.getElementById('err-' + id).textContent = 'Required.'; valid = false; }
+    });
+    if(document.getElementById('yearsEmployed').value === ''){ document.getElementById('err-yearsEmployed').textContent = 'Required.'; valid = false; }
+    if(!document.getElementById('pixelBudget').value.trim()){ document.getElementById('err-pixelBudget').textContent = 'Required, even though the asset needs no maintenance.'; valid = false; }
+    if(valid){ log('Section 3 validated successfully.'); advance(3,4,section); }
+    else { section.classList.add('shake'); setTimeout(function(){ section.classList.remove('shake'); }, 400); }
+  });
+  document.getElementById('s3back').addEventListener('click', function(){ showSection(2); });
+
+  /* ---------- Section 4: Household ---------- */
+  document.getElementById('s4next').addEventListener('click', function(){
+    var section = document.getElementById('section4');
+    clearErrors(section);
+    var valid = true;
+    if(document.getElementById('householdSize').value === ''){ document.getElementById('err-householdSize').textContent = 'Required.'; valid = false; }
+    if(document.getElementById('numPets').value === ''){ document.getElementById('err-numPets').textContent = 'Required (enter 0 if none).'; valid = false; }
+    if(document.getElementById('numPlants').value === ''){ document.getElementById('err-numPlants').textContent = 'Required (enter 0 if none).'; valid = false; }
+    if(!document.getElementById('dwellingType').value){ document.getElementById('err-dwellingType').textContent = 'Required.'; valid = false; }
+    if(!document.getElementById('householdBeige').checked){ document.getElementById('err-householdBeige').textContent = 'This attestation is mandatory.'; valid = false; }
+    if(valid){ log('Section 4 validated successfully.'); advance(4,5,section); renderCaptcha('captchaDisplay'); }
+    else { section.classList.add('shake'); setTimeout(function(){ section.classList.remove('shake'); }, 400); }
+  });
+  document.getElementById('s4back').addEventListener('click', function(){ showSection(3); });
+
+  /* ---------- Captcha: Bureaucracy word ---------- */
   function renderCaptcha(containerId){
     var word = 'Bureaucracy';
     var container = document.getElementById(containerId);
@@ -1156,54 +1713,307 @@ layout: null
     }
   }
 
-  document.getElementById('s3submit').addEventListener('click', function(){
-    var section = document.getElementById('section3');
+  document.getElementById('s5next').addEventListener('click', function(){
+    var section = document.getElementById('section5');
     var valid = true;
     var checks = document.querySelectorAll('.compliance-check');
     var unchecked = 0;
     checks.forEach(function(c){ if(!c.checked) unchecked++; });
-    if(unchecked > 0){
-      document.getElementById('err-compliance').textContent = unchecked + ' compliance item(s) remain unacknowledged.';
-      valid = false;
-      log('Validation error: ' + unchecked + ' compliance checkbox(es) unchecked.');
-    } else {
-      document.getElementById('err-compliance').textContent = '';
-    }
+    if(unchecked > 0){ document.getElementById('err-compliance').textContent = unchecked + ' item(s) remain unacknowledged.'; valid = false; }
+    else { document.getElementById('err-compliance').textContent = ''; }
     var captchaVal = document.getElementById('captchaInput').value.trim().toLowerCase();
     if(captchaVal !== 'bureaucracy'){
       document.getElementById('err-captcha').textContent = 'Incorrect. Please re-type the word exactly as shown.';
       valid = false;
-      log('Validation error: CAPTCHA response "' + (captchaVal || '(blank)') + '" did not match.');
       renderCaptcha('captchaDisplay');
       document.getElementById('captchaInput').value = '';
-    } else {
-      document.getElementById('err-captcha').textContent = '';
+    } else { document.getElementById('err-captcha').textContent = ''; }
+    if(valid){ log('Section 5 validated successfully.'); advance(5,6,section); renderMathCaptcha(); }
+    else { section.classList.add('shake'); setTimeout(function(){ section.classList.remove('shake'); }, 400); }
+  });
+  document.getElementById('s5back').addEventListener('click', function(){ showSection(4); });
+
+  /* ---------- Section 6: Math captcha ---------- */
+  function renderMathCaptcha(){
+    var a = Math.floor(Math.random()*40) + 1;
+    var b = Math.floor(Math.random()*40) + 1;
+    var ops = ['+','-','\u00d7'];
+    var op = ops[Math.floor(Math.random()*ops.length)];
+    var answer;
+    if(op === '+'){ answer = a + b; }
+    else if(op === '-'){ if(b > a){ var t=a; a=b; b=t; } answer = a - b; }
+    else { a = Math.floor(Math.random()*12)+1; b = Math.floor(Math.random()*12)+1; answer = a*b; }
+    state.mathAnswer = answer;
+    document.getElementById('mathDisplay').textContent = a + ' ' + op + ' ' + b + ' = ?';
+    document.getElementById('mathInput').value = '';
+  }
+  document.getElementById('s6next').addEventListener('click', function(){
+    var section = document.getElementById('section6');
+    var val = parseInt(document.getElementById('mathInput').value.trim(), 10);
+    if(val !== state.mathAnswer || document.getElementById('mathInput').value.trim() === ''){
+      document.getElementById('err-math').textContent = 'Incorrect. A new equation has been generated.';
+      renderMathCaptcha();
+      section.classList.add('shake'); setTimeout(function(){ section.classList.remove('shake'); }, 400);
+      log('Validation error: math captcha incorrect.');
+      return;
     }
+    document.getElementById('err-math').textContent = '';
+    log('Section 6 validated successfully.');
+    advance(6,7,section);
+  });
+  document.getElementById('s6back').addEventListener('click', function(){ showSection(5); });
+
+  /* ---------- Section 7: Travel ---------- */
+  document.getElementById('s7next').addEventListener('click', function(){
+    var section = document.getElementById('section7');
+    clearErrors(section);
+    var valid = true;
+    if(!document.getElementById('lastTrip').value.trim()){ document.getElementById('err-lastTrip').textContent = 'Required.'; valid = false; }
+    if(!document.getElementById('tripPurpose').value){ document.getElementById('err-tripPurpose').textContent = 'Required.'; valid = false; }
+    if(document.getElementById('timeZonesCrossed').value === ''){ document.getElementById('err-timeZonesCrossed').textContent = 'Required (enter 0 if none).'; valid = false; }
+    if(!document.getElementById('passportBeige').checked){ document.getElementById('err-passportBeige').textContent = 'This attestation is mandatory.'; valid = false; }
+    if(valid){ log('Section 7 validated successfully.'); advance(7,8,section); renderScrambleCaptcha(); }
+    else { section.classList.add('shake'); setTimeout(function(){ section.classList.remove('shake'); }, 400); }
+  });
+  document.getElementById('s7back').addEventListener('click', function(){ showSection(6); });
+
+  /* ---------- Section 8: Word scramble captcha ---------- */
+  var scrambleWords = ['PROVISIONING','ALLOCATION','SUBSECTION','COMPLIANCE','APPLICANT','DIRECTIVE','TRIPLICATE','NOTARIZED','ESCALATION','DETERMINATION'];
+  function scrambleString(str){
+    var arr = str.split('');
+    for(var i=arr.length-1;i>0;i--){
+      var j = Math.floor(Math.random()*(i+1));
+      var tmp = arr[i]; arr[i]=arr[j]; arr[j]=tmp;
+    }
+    var scrambled = arr.join('');
+    if(scrambled === str && str.length > 1){ return scrambleString(str); }
+    return scrambled;
+  }
+  function renderScrambleCaptcha(){
+    var word = scrambleWords[Math.floor(Math.random()*scrambleWords.length)];
+    state.scrambleAnswer = word.toLowerCase();
+    var scrambled = scrambleString(word);
+    var container = document.getElementById('scrambleDisplay');
+    container.innerHTML = '';
+    for(var i=0;i<scrambled.length;i++){
+      var span = document.createElement('span');
+      span.textContent = scrambled[i];
+      var rot = (Math.random()*8 - 4).toFixed(1);
+      span.style.transform = 'rotate(' + rot + 'deg)';
+      container.appendChild(span);
+    }
+    document.getElementById('scrambleInput').value = '';
+  }
+  document.getElementById('s8next').addEventListener('click', function(){
+    var section = document.getElementById('section8');
+    var val = document.getElementById('scrambleInput').value.toLowerCase().replace(/[^a-z]/g, '');
+    if(val !== state.scrambleAnswer){
+      document.getElementById('err-scramble').textContent = 'Incorrect. A new word has been generated.';
+      renderScrambleCaptcha();
+      section.classList.add('shake'); setTimeout(function(){ section.classList.remove('shake'); }, 400);
+      log('Validation error: scramble captcha incorrect.');
+      return;
+    }
+    document.getElementById('err-scramble').textContent = '';
+    log('Section 8 validated successfully.');
+    advance(8,9,section);
+  });
+  document.getElementById('s8back').addEventListener('click', function(){ showSection(7); });
+
+  /* ---------- Section 9: References ---------- */
+  document.getElementById('s9next').addEventListener('click', function(){
+    var section = document.getElementById('section9');
+    var valid = true;
+    for(var i=1;i<=3;i++){
+      if(!document.getElementById('ref'+i+'Name').value.trim() || !document.getElementById('ref'+i+'Relation').value.trim()){ valid = false; }
+    }
+    if(!valid){
+      document.getElementById('err-references').textContent = 'All three references require both a name and relationship.';
+      section.classList.add('shake'); setTimeout(function(){ section.classList.remove('shake'); }, 400);
+      return;
+    }
+    document.getElementById('err-references').textContent = '';
+    log('Section 9 validated successfully.');
+    advance(9,10,section);
+  });
+  document.getElementById('s9back').addEventListener('click', function(){ showSection(8); });
+
+  /* ---------- Section 10: Digital Footprint ---------- */
+  document.getElementById('s10next').addEventListener('click', function(){
+    var section = document.getElementById('section10');
+    clearErrors(section);
+    var valid = true;
+    if(!document.getElementById('pixelExperience').value){ document.getElementById('err-pixelExperience').textContent = 'Required.'; valid = false; }
+    if(document.getElementById('devicesOwned').value === ''){ document.getElementById('err-devicesOwned').textContent = 'Required.'; valid = false; }
+    var words = document.getElementById('digitalStatement').value.trim().split(/\s+/).filter(Boolean);
+    if(words.length < 5){ document.getElementById('err-digitalStatement').textContent = 'Minimum 5 words required.'; valid = false; }
+    if(valid){ log('Section 10 validated successfully.'); advance(10,11,section); renderGridCaptcha(); }
+    else { section.classList.add('shake'); setTimeout(function(){ section.classList.remove('shake'); }, 400); }
+  });
+  document.getElementById('s10back').addEventListener('click', function(){ showSection(9); });
+
+  /* ---------- Section 11: Grid captcha ---------- */
+  function renderGridCaptcha(){
+    var grid = document.getElementById('gridCaptcha');
+    grid.innerHTML = '';
+    state.gridSelectedCells = [];
+    var targetHue = 40 + Math.floor(Math.random()*15);
+    var targetColor = 'hsl(' + targetHue + ', 35%, 78%)';
+    state.gridTargetColor = targetColor;
+    document.getElementById('gridInstruction').textContent = 'Select every square that is exactly this shade of beige.';
+    var correctIndexes = [];
+    var totalCells = 20;
+    var numCorrect = 2 + Math.floor(Math.random()*3);
+    while(correctIndexes.length < numCorrect){
+      var idx = Math.floor(Math.random()*totalCells);
+      if(correctIndexes.indexOf(idx) === -1) correctIndexes.push(idx);
+    }
+    state.gridCorrectCells = correctIndexes;
+    for(var i=0;i<totalCells;i++){
+      var cell = document.createElement('div');
+      cell.className = 'grid-cell';
+      cell.dataset.index = i;
+      if(correctIndexes.indexOf(i) !== -1){
+        cell.style.background = targetColor;
+      } else {
+        var hue = Math.floor(Math.random()*360);
+        var sat = Math.floor(Math.random()*30)+20;
+        var light = Math.floor(Math.random()*30)+55;
+        cell.style.background = 'hsl(' + hue + ', ' + sat + '%, ' + light + '%)';
+      }
+      cell.addEventListener('click', function(){
+        var idx = parseInt(this.dataset.index, 10);
+        this.classList.toggle('selected');
+        var pos = state.gridSelectedCells.indexOf(idx);
+        if(pos === -1){ state.gridSelectedCells.push(idx); } else { state.gridSelectedCells.splice(pos,1); }
+      });
+      grid.appendChild(cell);
+    }
+  }
+  document.getElementById('s11next').addEventListener('click', function(){
+    var section = document.getElementById('section11');
+    var selected = state.gridSelectedCells.slice().sort();
+    var correct = state.gridCorrectCells.slice().sort();
+    var match = selected.length === correct.length && selected.every(function(v,i){ return v === correct[i]; });
+    if(!match){
+      document.getElementById('err-grid').textContent = 'Incorrect selection. A new grid has been generated.';
+      renderGridCaptcha();
+      section.classList.add('shake'); setTimeout(function(){ section.classList.remove('shake'); }, 400);
+      log('Validation error: grid captcha incorrect.');
+      return;
+    }
+    document.getElementById('err-grid').textContent = '';
+    log('Section 11 validated successfully.');
+    advance(11,12,section);
+  });
+  document.getElementById('s11back').addEventListener('click', function(){ showSection(10); });
+
+  /* ---------- Section 12: Notarization ---------- */
+  document.getElementById('s12next').addEventListener('click', function(){
+    var section = document.getElementById('section12');
+    var valid = true;
+    if(!state.hasSignature2){ document.getElementById('err-signature2').textContent = 'A second signature is required.'; valid = false; }
+    else { document.getElementById('err-signature2').textContent = ''; }
+    if(!document.getElementById('notaryAck').checked){ document.getElementById('err-notaryAck').textContent = 'Acknowledgment required.'; valid = false; }
+    else { document.getElementById('err-notaryAck').textContent = ''; }
+    if(valid){ log('Section 12 validated successfully.'); advance(12,13,section); resetSlider(); }
+    else { section.classList.add('shake'); setTimeout(function(){ section.classList.remove('shake'); }, 400); }
+  });
+  document.getElementById('s12back').addEventListener('click', function(){ showSection(11); });
+
+  /* ---------- Section 13: Slider captcha ---------- */
+  var sliderTargetPos = 0;
+  function resetSlider(){
+    var track = document.getElementById('sliderCaptcha');
+    var trackWidth = track.clientWidth || 300;
+    var targetEl = document.getElementById('sliderTarget');
+    sliderTargetPos = 60 + Math.random() * (trackWidth - 160);
+    targetEl.style.left = sliderTargetPos + 'px';
+    document.getElementById('sliderHandle').style.left = '2px';
+    state.sliderSolved = false;
+  }
+  (function setupSlider(){
+    var handle = document.getElementById('sliderHandle');
+    var track = document.getElementById('sliderCaptcha');
+    var dragging = false;
+    function getX(e){ var point = e.touches && e.touches.length ? e.touches[0] : e; return point.clientX; }
+    function onDown(e){ dragging = true; e.preventDefault(); }
+    function onMove(e){
+      if(!dragging) return;
+      var rect = track.getBoundingClientRect();
+      var x = getX(e) - rect.left - 20;
+      x = Math.max(2, Math.min(x, rect.width - 42));
+      handle.style.left = x + 'px';
+      if(Math.abs(x - sliderTargetPos) < 20){ state.sliderSolved = true; } else { state.sliderSolved = false; }
+      e.preventDefault();
+    }
+    function onUp(){ dragging = false; }
+    handle.addEventListener('mousedown', onDown);
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+    handle.addEventListener('touchstart', onDown, {passive:false});
+    window.addEventListener('touchmove', onMove, {passive:false});
+    window.addEventListener('touchend', onUp);
+  })();
+  document.getElementById('s13next').addEventListener('click', function(){
+    var section = document.getElementById('section13');
+    if(!state.sliderSolved){
+      document.getElementById('err-slider').textContent = 'Not aligned. Try again — the zone has been regenerated.';
+      resetSlider();
+      section.classList.add('shake'); setTimeout(function(){ section.classList.remove('shake'); }, 400);
+      log('Validation error: slider captcha not aligned.');
+      return;
+    }
+    document.getElementById('err-slider').textContent = '';
+    log('Section 13 validated successfully.');
+    advance(13,14,section);
+    renderOath();
+  });
+  document.getElementById('s13back').addEventListener('click', function(){ showSection(12); });
+
+  /* ---------- Section 14: Final oath ---------- */
+  var oathPhrases = [
+    'I hereby request one white pixel, and I understand this request may be denied for reasons unrelated to my application.',
+    'I affirm that I have completed fourteen sections in pursuit of a single blank image, and I regret nothing.',
+    'I acknowledge the Bureau\'s right to deny this application for any reason, including no reason at all.',
+    'I understand that persistence is not the same as eligibility, and I am proceeding anyway.'
+  ];
+  function renderOath(){
+    var phrase = oathPhrases[Math.floor(Math.random()*oathPhrases.length)];
+    state.oathText = phrase;
+    document.getElementById('oathPhrase').textContent = phrase;
+    document.getElementById('oathInput').value = '';
+  }
+  document.getElementById('s14submit').addEventListener('click', function(){
+    var section = document.getElementById('section14');
+    var valid = true;
+    if(document.getElementById('oathInput').value.trim() !== state.oathText){
+      document.getElementById('err-oath').textContent = 'Does not match exactly. A new oath has been generated.';
+      valid = false;
+      renderOath();
+    } else { document.getElementById('err-oath').textContent = ''; }
+    if(!document.getElementById('finalAck').checked){ document.getElementById('err-finalAck').textContent = 'Required.'; valid = false; }
+    else { document.getElementById('err-finalAck').textContent = ''; }
     if(valid){
-      log('Section 3 validated successfully. Submitting Form 84-B for processing.');
-      showSection(4, true);
-      startProcessing();
+      log('Section 14 validated successfully. Submitting complete Form 84-B for final processing.');
+      state.sectionsCompletedTotal++;
+      updateGrindTicker();
+      showSection(15, true);
+      startFinalProcessing();
     } else {
-      section.classList.add('shake');
-      setTimeout(function(){ section.classList.remove('shake'); }, 400);
+      section.classList.add('shake'); setTimeout(function(){ section.classList.remove('shake'); }, 400);
     }
   });
-  document.getElementById('s3back').addEventListener('click', function(){ showSection(2); });
+  document.getElementById('s14back').addEventListener('click', function(){ showSection(13); });
 
-  /* ---------- Section 4: Processing + Determination ---------- */
+  /* ---------- Final processing / determination ---------- */
   var statusMessages = [
-    'Verifying signature curvature ratio...',
-    'Cross-referencing lunar calendar...',
-    'Contacting Regional Sub-Office 12...',
-    'Escalating to Deputy Undersecretary...',
-    'Consulting the Federal Pixel Registry...',
-    'Balancing server load by blood type...',
-    'Reticulating splines (mandatory, unrelated)...',
-    'Notarizing the notarization of the notarization...',
-    'Checking Beige Compliance Index...',
-    'Awaiting quorum of three (3) available reviewers...'
+    'Verifying signature curvature ratio...','Cross-referencing lunar calendar...','Contacting Regional Sub-Office 12...',
+    'Escalating to Deputy Undersecretary...','Consulting the Federal Pixel Registry...','Balancing server load by blood type...',
+    'Reticulating splines (mandatory, unrelated)...','Notarizing the notarization of the notarization...','Checking Beige Compliance Index...',
+    'Awaiting quorum of three (3) available reviewers...','Cross-checking household plant awareness records...','Auditing character references for sincerity...',
+    'Re-verifying alignment gate results...','Confirming oath phrase against master ledger...'
   ];
-
   var rejectionReasons = [
     'Signature curvature ratio exceeds acceptable tolerance (measured 14.7°, maximum allowed 12°).',
     'Application filed during an unapproved lunar cycle. Waning Gibbous submissions are processed on alternating Thursdays only.',
@@ -1219,15 +2029,20 @@ layout: null
     'Duplicate request detected for a white pixel filed by a parallel-universe applicant sharing your case number.',
     'Processing server experienced a queue priority inversion while balancing load by blood type.',
     'Applicant\u2019s justification essay was persuasive, which is not currently a valid approval criterion.',
-    'Form was completed correctly, which the reviewing officer found suspicious.'
+    'Form was completed correctly across all fourteen sections, which the reviewing officer found suspicious.',
+    'Second signature (Section 12) bears insufficient resemblance to first signature (Section 2), despite instructions.',
+    'Character Reference 3 could not be verified as distinct from a houseplant listed in Section 4.',
+    'Household beige attestation (Section 4) contradicts passport color attestation (Section 7) in a manner the Bureau declines to specify.',
+    'Applicant answered the oath correctly, satisfying the letter but not the spirit of Section 14.',
+    'Alignment gate (Section 13) was passed on the first attempt, which statistically suggests automation.'
   ];
-
   var appealDenials = [
     'Appeal denied: appeals must be filed using Form 84-C, which itself requires an approved Form 84-B on file.',
     'Appeal denied: the Deputy Undersecretary is currently at lunch. Estimated return: end of fiscal year.',
     'Appeal denied: appeal justification reused a word from the original justification essay.',
     'Appeal denied: the Regional Appeals Office has been relocated to a facility with no known address.',
-    'Appeal denied: this appeal has been referred to the Committee for the Review of Appeals of Appeals.'
+    'Appeal denied: this appeal has been referred to the Committee for the Review of Appeals of Appeals.',
+    'Appeal denied: the fourteen-section application on file has expired due to the appeal taking too long to file.'
   ];
 
   function randCode(){
@@ -1235,46 +2050,66 @@ layout: null
     return '84B-' + Math.floor(1000 + Math.random()*9000) + '-' + letters[Math.floor(Math.random()*letters.length)];
   }
 
-  function startProcessing(){
+  var APPROVAL_CHANCE = 0.15;
+
+  function startFinalProcessing(){
     document.getElementById('processingView').classList.remove('hidden');
     document.getElementById('resultView').classList.add('hidden');
     document.getElementById('appealForm').classList.add('hidden');
+    document.getElementById('victoryView').classList.add('hidden');
     var fill = document.getElementById('procFill');
     var statusEl = document.getElementById('statusMessage');
     fill.style.width = '0%';
     var progress = 0;
     var msgIndex = 0;
     statusEl.textContent = statusMessages[0];
-    log('Processing initiated.');
+    log('Final processing initiated across all 14 sections.');
     var interval = setInterval(function(){
-      progress += Math.random()*14 + 6;
+      progress += Math.random()*10 + 5;
       if(progress > 96) progress = 96;
-      if(Math.random() < 0.18 && progress > 40){
-        progress -= 9;
-        log('Progress recalculated (regression detected).');
-      }
+      if(Math.random() < 0.18 && progress > 40){ progress -= 9; log('Progress recalculated (regression detected).'); }
       fill.style.width = progress + '%';
       msgIndex = (msgIndex + 1) % statusMessages.length;
       statusEl.textContent = statusMessages[msgIndex];
       log('System: ' + statusMessages[msgIndex]);
-    }, 700);
+    }, 650);
     setTimeout(function(){
       clearInterval(interval);
       fill.style.width = '100%';
       statusEl.textContent = 'Finalizing determination...';
-      setTimeout(showRejection, 900);
-    }, 6500);
+      setTimeout(showFinalDetermination, 1000);
+    }, 8000);
   }
 
-  function showRejection(){
+  function showFinalDetermination(){
     document.getElementById('processingView').classList.add('hidden');
-    document.getElementById('resultView').classList.remove('hidden');
-    var reason = rejectionReasons[Math.floor(Math.random()*rejectionReasons.length)];
-    var code = randCode();
-    document.getElementById('denialCode').textContent = 'DETERMINATION CODE: ' + code;
-    document.getElementById('denialReason').textContent = reason;
-    log('APPLICATION DENIED — Code ' + code + '. Reason: ' + reason);
-    document.getElementById('appealBtn').textContent = 'File Appeal (Form 84-C)';
+    var approved = Math.random() < APPROVAL_CHANCE;
+    if(approved){
+      showVictory();
+    } else {
+      document.getElementById('resultView').classList.remove('hidden');
+      var reason = rejectionReasons[Math.floor(Math.random()*rejectionReasons.length)];
+      var code = randCode();
+      document.getElementById('denialCode').textContent = 'DETERMINATION CODE: ' + code;
+      document.getElementById('denialReason').textContent = reason;
+      state.denialsTotal++;
+      updateGrindTicker();
+      log('FULL APPLICATION DENIED — Code ' + code + '. Reason: ' + reason);
+      document.getElementById('appealBtn').textContent = 'File Appeal (Form 84-C)';
+    }
+  }
+
+  function showVictory(){
+    state.fullRunsCompleted++;
+    updateGrindTicker();
+    document.getElementById('victoryView').classList.remove('hidden');
+    document.getElementById('certCaseNumber').textContent = document.getElementById('caseNumber').textContent;
+    document.getElementById('certDate').textContent = new Date().toLocaleDateString();
+    document.getElementById('certAttempts').textContent = state.fullRunsCompleted;
+    document.getElementById('certDenials').textContent = state.denialsTotal;
+    var unlockCode = 'WPX-' + Math.random().toString(36).slice(2,6).toUpperCase() + '-' + Math.random().toString(36).slice(2,6).toUpperCase();
+    document.getElementById('victoryUnlockCode').textContent = unlockCode;
+    log('APPLICATION APPROVED. Unlock code ' + unlockCode + ' issued after ' + state.denialsTotal + ' total denial(s) this session.', true);
   }
 
   document.getElementById('appealBtn').addEventListener('click', function(){
@@ -1286,29 +2121,21 @@ layout: null
     document.getElementById('captcha2Input').value = '';
     clearErrors(document.getElementById('appealForm'));
     renderCaptcha('captcha2Display');
-    if(state.appealCount >= 3){
-      document.getElementById('appealHint').classList.remove('hidden');
-    }
+    if(state.appealCount >= 3){ document.getElementById('appealHint').classList.remove('hidden'); }
   });
 
   document.getElementById('appealSubmit').addEventListener('click', function(){
     var valid = true;
     var reasonWords = document.getElementById('appealReason').value.trim().split(/\s+/).filter(Boolean);
-    if(reasonWords.length < 5){
-      document.getElementById('err-appealReason').textContent = 'Appeal justification must contain at least 5 words.';
-      valid = false;
-    } else {
-      document.getElementById('err-appealReason').textContent = '';
-    }
+    if(reasonWords.length < 5){ document.getElementById('err-appealReason').textContent = 'Minimum 5 words required.'; valid = false; }
+    else { document.getElementById('err-appealReason').textContent = ''; }
     var captchaVal = document.getElementById('captcha2Input').value.trim().toLowerCase();
     if(captchaVal !== 'bureaucracy'){
       document.getElementById('err-captcha2').textContent = 'Incorrect. Please try again.';
       valid = false;
       renderCaptcha('captcha2Display');
       document.getElementById('captcha2Input').value = '';
-    } else {
-      document.getElementById('err-captcha2').textContent = '';
-    }
+    } else { document.getElementById('err-captcha2').textContent = ''; }
     if(!valid) return;
     log('Appeal ' + state.appealCount + ' submitted for review.');
     document.getElementById('appealForm').classList.add('hidden');
@@ -1336,13 +2163,20 @@ layout: null
       fill.style.width = '100%';
       setTimeout(function(){
         document.getElementById('processingView').classList.add('hidden');
-        document.getElementById('resultView').classList.remove('hidden');
-        var reason = appealDenials[Math.floor(Math.random()*appealDenials.length)];
-        var code = randCode();
-        document.getElementById('denialCode').textContent = 'APPEAL DETERMINATION CODE: ' + code;
-        document.getElementById('denialReason').textContent = reason;
-        log('APPEAL DENIED — Code ' + code + '. Reason: ' + reason);
-        document.getElementById('appealBtn').textContent = 'File Further Appeal (Form 84-C, Attempt ' + (state.appealCount + 1) + ')';
+        var approved = Math.random() < (APPROVAL_CHANCE * 0.5);
+        if(approved){
+          showVictory();
+        } else {
+          document.getElementById('resultView').classList.remove('hidden');
+          var reason = appealDenials[Math.floor(Math.random()*appealDenials.length)];
+          var code = randCode();
+          document.getElementById('denialCode').textContent = 'APPEAL DETERMINATION CODE: ' + code;
+          document.getElementById('denialReason').textContent = reason;
+          state.denialsTotal++;
+          updateGrindTicker();
+          log('APPEAL DENIED — Code ' + code + '. Reason: ' + reason);
+          document.getElementById('appealBtn').textContent = 'File Further Appeal (Form 84-C, Attempt ' + (state.appealCount + 1) + ')';
+        }
       }, 700);
     }, 3800);
   }
@@ -1351,8 +2185,84 @@ layout: null
     log('Applicant started a new application.');
     resetForm();
   });
+  document.getElementById('victoryRestartBtn').addEventListener('click', function(){
+    log('Applicant filed another application after victory.');
+    resetForm();
+  });
 
-  /* ---------- Abandon application ---------- */
+  /* ---------- Victory downloads ---------- */
+  document.getElementById('downloadPixelBtn').addEventListener('click', function(){
+    var c = document.createElement('canvas');
+    c.width = 1; c.height = 1;
+    var cx = c.getContext('2d');
+    cx.fillStyle = '#FFFFFF';
+    cx.fillRect(0, 0, 1, 1);
+    var url = c.toDataURL('image/jpeg', 1.0);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'federal-asset-84B-APPROVED.jpg';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    log('Approved white pixel asset downloaded by applicant.', true);
+  });
+
+  document.getElementById('downloadCertBtn').addEventListener('click', function(){
+    var w = 900, h = 620;
+    var c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    var cx = c.getContext('2d');
+    cx.fillStyle = '#F8F1DC'; cx.fillRect(0,0,w,h);
+    cx.strokeStyle = '#C9A227'; cx.lineWidth = 10; cx.strokeRect(20,20,w-40,h-40);
+    cx.strokeStyle = '#C9A227'; cx.lineWidth = 2; cx.strokeRect(38,38,w-76,h-76);
+    cx.fillStyle = '#0F2540';
+    cx.textAlign = 'center';
+    cx.font = '48px Georgia, serif';
+    cx.fillText('\uD83E\uDD85', w/2, 130);
+    cx.font = 'italic 16px Georgia, serif';
+    cx.fillStyle = '#7A6A2E';
+    cx.fillText('FEDERAL BUREAU OF DIGITAL PROVISIONING', w/2, 170);
+    cx.font = 'bold 34px Georgia, serif';
+    cx.fillStyle = '#0F2540';
+    cx.fillText('Certificate of Asset Approval', w/2, 220);
+    cx.font = 'italic 14px Georgia, serif';
+    cx.fillStyle = '#7A6A2E';
+    cx.fillText('Form 84-B \u2014 Final Determination', w/2, 245);
+    cx.font = '15px Georgia, serif';
+    cx.fillStyle = '#221E18';
+    var caseNo = document.getElementById('certCaseNumber').textContent;
+    var lines = [
+      'This certifies that the applicant identified under',
+      'case number ' + caseNo + ' has, against overwhelming odds',
+      'and after extensive review, been granted issuance of',
+      'one (1) white pixel, rendered in the JPEG format,',
+      'effective immediately.'
+    ];
+    lines.forEach(function(line, i){ cx.fillText(line, w/2, 300 + i*26); });
+    cx.font = '13px Georgia, serif';
+    cx.fillStyle = '#7A6A2E';
+    var metaLine = 'Approved ' + document.getElementById('certDate').textContent +
+      ' after ' + document.getElementById('certAttempts').textContent + ' completed cycle(s) and ' +
+      document.getElementById('certDenials').textContent + ' prior denial(s).';
+    cx.fillText(metaLine, w/2, 460);
+    cx.font = 'bold 16px "Courier New", monospace';
+    cx.fillStyle = '#0F2540';
+    cx.fillText('UNLOCK CODE: ' + document.getElementById('victoryUnlockCode').textContent, w/2, 500);
+    cx.font = '11px Georgia, serif';
+    cx.fillStyle = '#9C9483';
+    cx.fillText('This is a satirical parody document. It confers no rights, benefits, or actual pixels of legal significance.', w/2, 560);
+
+    var url = c.toDataURL('image/png', 1.0);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'form-84B-certificate-of-approval.png';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    log('Certificate of Approval downloaded by applicant.', true);
+  });
+
+  /* ---------- Abandon / ToS / Bypass / Print (unchanged mechanics) ---------- */
   document.getElementById('abandonLink').addEventListener('click', function(e){
     e.preventDefault();
     if(confirm('Abandon this application? All progress will be lost and cannot be recovered, per Directive 9(a).')){
@@ -1361,7 +2271,6 @@ layout: null
     }
   });
 
-  /* ---------- Terms of Service modal ---------- */
   function maybeShowTos(){
     if(state.tosShown) return;
     state.tosShown = true;
@@ -1375,7 +2284,6 @@ layout: null
     log('Applicant acknowledged updated Terms of Service.');
   });
 
-  /* ---------- Whistleblower bypass ---------- */
   document.getElementById('bypassLink').addEventListener('click', function(e){
     e.preventDefault();
     var c = document.createElement('canvas');
@@ -1386,15 +2294,14 @@ layout: null
     var url = c.toDataURL('image/jpeg', 1.0);
     var a = document.createElement('a');
     a.href = url;
-    a.download = 'federal-asset-84B.jpg';
+    a.download = 'federal-asset-84B-bypass.jpg';
     document.body.appendChild(a);
     a.click();
     a.remove();
-    log('EMERGENCY BYPASS ACTIVATED — asset served without authorization via whistleblower channel.');
-    alert('Congratulations. You have discovered the only functional government service in this building. Your white pixel has been downloaded. This incident has been logged and immediately forgotten.');
+    log('EMERGENCY BYPASS ACTIVATED — asset served without authorization via whistleblower channel.', true);
+    revealSecret('Whistleblower Channel', 'This has always been the only functional government service in the building. It grants a pixel, not a certificate — the Bureau reserves certificates for those who suffer through all fourteen sections properly.');
   });
 
-  /* ---------- Print ---------- */
   document.getElementById('printBtn').addEventListener('click', function(){
     log('Applicant printed page for personal records.');
     window.print();
@@ -1409,28 +2316,30 @@ layout: null
     'This chat is monitored for quality assurance, and also for no reason.',
     'Unfortunately, I am a bot and cannot help with that.',
     'Your patience has been noted in a file that no one will read.',
-    'I have escalated your message to myself.'
+    'I have escalated your message to myself.',
+    'Between us: Section 13 is easier if you go slowly.',
+    'I am not supposed to say this, but the footer has a secret.'
   ];
-
   document.getElementById('chatToggle').addEventListener('click', function(){
     document.getElementById('chatPanel').classList.toggle('hidden');
   });
-
   function sendChat(){
     var input = document.getElementById('chatInput');
     var text = input.value.trim();
     if(!text) return;
     addChatMessage(text, 'user');
     input.value = '';
+    if(/secret|help|hint/i.test(text) && state.secretsFound < 1){
+      setTimeout(function(){ addChatMessage('I really shouldn\u2019t, but... try clicking things that look clickable. The eagle, for instance.', 'bot'); }, 600);
+      return;
+    }
     setTimeout(function(){
       var reply = botReplies[Math.floor(Math.random()*botReplies.length)];
       addChatMessage(reply, 'bot');
     }, 600);
   }
   document.getElementById('chatSend').addEventListener('click', sendChat);
-  document.getElementById('chatInput').addEventListener('keydown', function(e){
-    if(e.key === 'Enter') sendChat();
-  });
+  document.getElementById('chatInput').addEventListener('keydown', function(e){ if(e.key === 'Enter') sendChat(); });
   function addChatMessage(text, who){
     var msgs = document.getElementById('chatMessages');
     var div = document.createElement('div');
@@ -1461,27 +2370,17 @@ layout: null
   var audioCtx = null;
   var musicInterval = null;
   var musicStep = 0;
-
-  function initAudio(){
-    if(!audioCtx){
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-  }
-
+  function initAudio(){ if(!audioCtx){ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } }
   function playNote(freq, time, dur, type, vol){
     var osc = audioCtx.createOscillator();
     var gain = audioCtx.createGain();
-    osc.type = type;
-    osc.frequency.value = freq;
+    osc.type = type; osc.frequency.value = freq;
     gain.gain.setValueAtTime(0, time);
     gain.gain.linearRampToValueAtTime(vol, time + 0.02);
     gain.gain.exponentialRampToValueAtTime(0.001, time + dur);
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.start(time);
-    osc.stop(time + dur + 0.05);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(time); osc.stop(time + dur + 0.05);
   }
-
   function playPerc(time, vol){
     var bufferSize = Math.floor(audioCtx.sampleRate * 0.05);
     var buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
@@ -1490,39 +2389,27 @@ layout: null
     var noise = audioCtx.createBufferSource();
     noise.buffer = buffer;
     var filter = audioCtx.createBiquadFilter();
-    filter.type = 'highpass';
-    filter.frequency.value = 4000;
+    filter.type = 'highpass'; filter.frequency.value = 4000;
     var gain = audioCtx.createGain();
     gain.gain.setValueAtTime(vol, time);
     gain.gain.exponentialRampToValueAtTime(0.001, time + 0.05);
-    noise.connect(filter);
-    filter.connect(gain);
-    gain.connect(audioCtx.destination);
+    noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
     noise.start(time);
   }
-
   var chordProgression = [
-    [261.63, 329.63, 392.00, 493.88],
-    [220.00, 277.18, 329.63, 392.00],
-    [293.66, 349.23, 440.00, 523.25],
-    [196.00, 246.94, 293.66, 349.23]
+    [261.63, 329.63, 392.00, 493.88],[220.00, 277.18, 329.63, 392.00],
+    [293.66, 349.23, 440.00, 523.25],[196.00, 246.94, 293.66, 349.23]
   ];
-
   function scheduleMusicStep(){
     var stepTime = audioCtx.currentTime + 0.05;
     var chordIdx = Math.floor(musicStep / 4) % chordProgression.length;
     var chord = chordProgression[chordIdx];
     var noteInChord = chord[musicStep % chord.length];
     playNote(noteInChord, stepTime, 0.35, 'triangle', 0.09);
-    if(musicStep % 2 === 1){
-      playPerc(stepTime, 0.05);
-    }
-    if(musicStep % 8 === 0){
-      playNote(chord[0] / 2, stepTime, 0.4, 'sine', 0.1);
-    }
+    if(musicStep % 2 === 1){ playPerc(stepTime, 0.05); }
+    if(musicStep % 8 === 0){ playNote(chord[0] / 2, stepTime, 0.4, 'sine', 0.1); }
     musicStep++;
   }
-
   document.getElementById('musicToggle').addEventListener('click', function(){
     initAudio();
     if(audioCtx.state === 'suspended'){ audioCtx.resume(); }
@@ -1539,11 +2426,35 @@ layout: null
     }
   });
 
+  /* ---------- Hidden secret: disclaimer long-press ---------- */
+  var disclaimerPressTimer = null;
+  document.getElementById('disclaimerText').addEventListener('mousedown', function(){
+    disclaimerPressTimer = setTimeout(function(){
+      revealSecret('Read The Fine Print', 'You held down the disclaimer text for three seconds. There was nothing else here. That was the whole secret. The Bureau respects your patience more than it deserves.');
+    }, 3000);
+  });
+  ['mouseup','mouseleave'].forEach(function(evt){
+    document.getElementById('disclaimerText').addEventListener(evt, function(){ clearTimeout(disclaimerPressTimer); });
+  });
+  document.getElementById('disclaimerText').addEventListener('touchstart', function(){
+    disclaimerPressTimer = setTimeout(function(){
+      revealSecret('Read The Fine Print', 'You held down the disclaimer text for three seconds. There was nothing else here. That was the whole secret. The Bureau respects your patience more than it deserves.');
+    }, 3000);
+  });
+  ['touchend','touchcancel'].forEach(function(evt){
+    document.getElementById('disclaimerText').addEventListener(evt, function(){ clearTimeout(disclaimerPressTimer); });
+  });
+
+  /* ---------- Console easter egg ---------- */
+  console.log('%cFORM 84-B SYSTEM CONSOLE', 'color:#8B6F2E; font-size:16px; font-weight:bold;');
+  console.log('You found the developer console. There is no secret here either. Try the eagle in the header, or holding the footer text.');
+
   /* ---------- Init ---------- */
   document.getElementById('caseNumber').textContent = genCaseNumber();
   document.getElementById('submissionTimestamp').textContent = new Date().toLocaleString();
+  updateGrindTicker();
   showSection(1);
-  log('Form 84-B session initialized.');
+  log('Form 84-B session initialized. Fourteen sections await.');
 
 })();
 </script>
